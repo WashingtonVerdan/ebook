@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #search {
+            padding: 8px;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        #book-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .book {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        .book:hover {
+            background-color: #eee;
+        }
+        #pdf-container {
+            display: none;
+            margin-top: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+            width: 100%;
+            max-width: 800px;
+        }
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
 
+    <h1>Biblioteca Digital</h1>
+
+    <input type="text" id="search" placeholder="Buscar um livro...">
+    
+    <div id="book-list"></div>
+
+    <div id="pdf-container">
+        <a href="#" class="back-btn" onclick="closeReader()">Voltar</a>
+        <canvas id="pdf-viewer"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const books = [
+                { title: "Livro 1", file: "livro1.pdf" },
+                { title: "Livro 2", file: "livro2.pdf" }
+            ];
+
+            const bookList = document.getElementById("book-list");
+            const searchInput = document.getElementById("search");
+            const pdfContainer = document.getElementById("pdf-container");
+            const pdfViewer = document.getElementById("pdf-viewer");
+
+            function renderBooks(filter = "") {
+                bookList.innerHTML = "";
+                books
+                    .filter(book => book.title.toLowerCase().includes(filter.toLowerCase()))
+                    .forEach(book => {
+                        let div = document.createElement("div");
+                        div.classList.add("book");
+                        div.innerText = book.title;
+                        div.onclick = () => openReader(book.file);
+                        bookList.appendChild(div);
+                    });
+            }
+
+            searchInput.addEventListener("input", () => renderBooks(searchInput.value));
+            renderBooks();
+
+            function openReader(file) {
+                bookList.style.display = "none";
+                searchInput.style.display = "none";
+                pdfContainer.style.display = "block";
+
+                const pdfjsLib = window["pdfjs-dist/build/pdf"];
+                pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+
+                pdfjsLib.getDocument(file).promise.then(pdf => {
+                    pdf.getPage(1).then(page => {
+                        const context = pdfViewer.getContext("2d");
+                        const viewport = page.getViewport({ scale: 1.5 });
+
+                        pdfViewer.width = viewport.width;
+                        pdfViewer.height = viewport.height;
+
+                        page.render({ canvasContext: context, viewport: viewport });
+                    });
+                });
+            }
+
+            window.closeReader = function () {
+                bookList.style.display = "flex";
+                searchInput.style.display = "block";
+                pdfContainer.style.display = "none";
+            };
+        });
+    </script>
+
+</body>
+</html>
