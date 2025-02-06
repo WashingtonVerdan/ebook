@@ -3,46 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook - Washington Verdan</title>
+    <title>Ebook Premium - Washington Verdan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Mantenha o mesmo CSS anterior */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: 2px solid #3498db;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .pdf-viewer-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        #pdf-viewer {
+            width: 100%;
+            height: 70vh;
+            border: none;
+        }
+
+        .ad-space {
+            background: rgba(52, 152, 219, 0.1);
+            border: 2px dashed #3498db;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #3498db;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 3rem 1rem;
+            }
+            
+            #pdf-viewer {
+                height: 500px;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>📚 Ebook Gratuito</h1>
-        <p>Por Washington Verdan</p>
+        <h1>📖 Ebook Exclusivo</h1>
+        <p>por Washington Verdan</p>
+        <div style="margin-top: 2rem;">
+            <button class="btn btn-primary" onclick="openPDF()">
+                <i class="fas fa-book-open"></i> Abrir Ebook
+            </button>
+        </div>
     </header>
 
     <div class="container">
         <div class="ad-space">
-            Espaço para Anúncio
+            <i class="fas fa-ad"></i> Espaço para Anúncio
         </div>
 
-        <div class="ebook-container">
-            <h2>Leia Online</h2>
-            <!-- Alterado para iframe com fallback -->
-            <iframe 
-                id="pdf-viewer"
-                src="viverderenda.pdf#toolbar=0" 
-                style="width: 100%; height: 600px; border: none;"
-            >
-                <p>Seu navegador não suporta PDFs. 
-                    <a href="viverderenda.pdf">Baixe o ebook aqui</a>.
-                </p>
-            </iframe>
-            
-            <!-- Botão de download com verificação -->
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="viverderenda.pdf" download class="download-btn" id="download-link">
-                    ⬇️ Baixar Ebook Completo
-                </a>
-                <p id="download-error" style="color: red; display: none;"></p>
+        <div class="features">
+            <div class="feature-card">
+                <h3><i class="fas fa-download"></i> Download Imediato</h3>
+                <p>Baixe e leia offline quando quiser</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-mobile-alt"></i> Responsivo</h3>
+                <p>Acesse de qualquer dispositivo</p>
+            </div>
+            <div class="feature-card">
+                <h3><i class="fas fa-lock"></i> Seguro</h3>
+                <p>Conteúdo 100% protegido</p>
             </div>
         </div>
 
+        <div class="pdf-viewer-container" id="pdfContainer">
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
+            </div>
+            <iframe id="pdf-viewer"></iframe>
+        </div>
+
         <div class="ad-space">
-            Espaço para Anúncio
+            <i class="fas fa-ad"></i> Espaço para Anúncio
         </div>
     </div>
 
@@ -50,29 +169,56 @@
         <p>Todos os direitos reservados &copy; <span id="year"></span> - Washington Verdan</p>
     </footer>
 
-    <script>
-        // Verificação do PDF
-        window.addEventListener('load', function() {
-            const pdfUrl = 'viverderenda.pdf';
-            const downloadLink = document.getElementById('download-link');
-            const errorDisplay = document.getElementById('download-error');
-            
-            // Testa se o PDF existe
-            fetch(pdfUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        errorDisplay.textContent = 'Erro: Arquivo PDF não encontrado!';
-                        errorDisplay.style.display = 'block';
-                        downloadLink.style.display = 'none';
-                        throw new Error('PDF não encontrado');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                });
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js" integrity="sha512-ml/QKfG3+Yes6TwOzQb7aCNtJF4PUyha6R3w8pSTo/VJSywl7ZreYvvtUso7fKevpsI+pYVV4uq82pdYDxfkJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-            // Atualiza ano
-            document.getElementById('year').textContent = new Date().getFullYear();
+    <script>
+        // Configurações do PDF Viewer
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const pdfContainer = document.getElementById('pdfContainer');
+        const loading = document.getElementById('loading');
+
+        function openPDF() {
+            pdfContainer.style.display = 'block';
+            loading.style.display = 'block';
+            pdfViewer.style.display = 'none';
+
+            // Carrega o PDF
+            pdfViewer.src = 'viverderenda.pdf#toolbar=0&navpanes=0&scrollbar=0';
+            
+            // Verifica quando o PDF está carregado
+            pdfViewer.onload = () => {
+                loading.style.display = 'none';
+                pdfViewer.style.display = 'block';
+            };
+
+            // Rolagem suave até o visualizador
+            pdfContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Verifica disponibilidade do PDF
+        fetch('viverderenda.pdf')
+            .then(response => {
+                if (!response.ok) {
+                    document.querySelector('.btn-primary').disabled = true;
+                    alert('Ebook indisponível no momento. Tente mais tarde.');
+                }
+            });
+
+        // Atualiza o ano automaticamente
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Adiciona efeito de hover dinâmico
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseover', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
+            });
+            
+            card.addEventListener('mouseout', () => {
+                card.style.transform = 'none';
+                card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+            });
         });
     </script>
 </body>
