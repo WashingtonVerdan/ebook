@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca Digital - Washington Verdan</title>
+    <title>Viver de Renda - Washington Verdan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -96,11 +96,17 @@
             margin-top: 4rem;
         }
 
-        .ebooks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
+        .navigation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .page-info {
+            text-align: center;
+            margin: 1rem 0;
+            color: #666;
         }
 
         .ebook-card {
@@ -117,24 +123,11 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
-
-        .navigation-controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        .page-info {
-            text-align: center;
-            margin: 1rem 0;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <header>
-        <h1>📚 Biblioteca Digital</h1>
+        <h1>📖 Viver de Renda</h1>
         <p>por Washington Verdan</p>
     </header>
 
@@ -143,8 +136,9 @@
             <i class="fas fa-ad"></i> Espaço para Anúncio
         </div>
 
-        <div class="ebooks-grid" id="ebooksList">
-            <!-- Ebooks serão carregados dinamicamente -->
+        <div class="ebook-card" onclick="loadPDF('viverderenda.pdf')">
+            <h3><i class="fas fa-book"></i> Viver de Renda</h3>
+            <p>Guia Completo para Independência Financeira</p>
         </div>
 
         <div class="loading" id="loading">
@@ -180,26 +174,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js"></script>
 
     <script>
-        // Configurações
-        const ebooks = [
-            { title: "Viver de Renda", file: "viverderenda.pdf" },
-            
-        ];
-
+        // Elementos DOM
+        const pdfContainer = document.getElementById('pdf-container');
+        const loading = document.getElementById('loading');
+        const viewer = document.getElementById('pdf-viewer');
+        
+        // Variáveis de controle
         let currentPDF = null;
         let currentPage = 1;
-        let currentScale = 1.5;
-
-        // Inicializa a lista de ebooks
-        function initEbooks() {
-            const grid = document.getElementById('ebooksList');
-            grid.innerHTML = ebooks.map(ebook => `
-                <div class="ebook-card" onclick="loadPDF('${ebook.file}')">
-                    <h3>${ebook.title}</h3>
-                    <p><i class="fas fa-file-pdf"></i> PDF</p>
-                </div>
-            `).join('');
-        }
+        let currentScale = 1.3;
 
         // Carrega o PDF
         async function loadPDF(filename) {
@@ -229,14 +212,11 @@
             const page = await currentPDF.getPage(pageNum);
             const viewport = page.getViewport({ scale: currentScale });
             
-            const canvas = document.getElementById('pdf-viewer');
-            const context = canvas.getContext('2d');
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+            viewer.height = viewport.height;
+            viewer.width = viewport.width;
             
             await page.render({
-                canvasContext: context,
+                canvasContext: viewer.getContext('2d'),
                 viewport: viewport
             }).promise;
 
@@ -244,7 +224,7 @@
             hideLoading();
         }
 
-        // Navegação
+        // Navegação entre páginas
         function changePage(delta) {
             const newPage = currentPage + delta;
             if (newPage > 0 && newPage <= currentPDF.numPages) {
@@ -254,25 +234,24 @@
 
         // Controles de loading
         function showLoading() {
-            document.getElementById('loading').style.display = 'block';
+            loading.style.display = 'block';
         }
 
         function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
+            loading.style.display = 'none';
         }
 
         function closePDF() {
-            const canvas = document.getElementById('pdf-viewer');
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            const context = viewer.getContext('2d');
+            context.clearRect(0, 0, viewer.width, viewer.height);
             pdfContainer.style.display = 'none';
             currentPage = 1;
         }
 
-        // Inicialização
+        // Configurações iniciais
         document.getElementById('year').textContent = new Date().getFullYear();
-        initEbooks();
 
-        // Teclado
+        // Navegação por teclado
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') changePage(-1);
             if (e.key === 'ArrowRight') changePage(1);
