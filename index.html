@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor Online - Washington Verdan</title>
+    <title>Biblioteca Digital - Washington Verdan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -57,7 +57,7 @@
 
         #pdf-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 2rem auto;
             background: white;
             border-radius: 12px;
@@ -68,7 +68,7 @@
 
         #pdf-viewer {
             width: 100%;
-            min-height: 500px;
+            min-height: 600px;
         }
 
         .loading {
@@ -95,17 +95,47 @@
             padding: 1.5rem;
             margin-top: 4rem;
         }
+
+        .ebooks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .ebook-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ebook-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .navigation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .page-info {
+            text-align: center;
+            margin: 1rem 0;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>📖 Leitura Online</h1>
+        <h1>📚 Biblioteca Digital</h1>
         <p>por Washington Verdan</p>
-        <div style="margin-top: 2rem;">
-            <button class="btn btn-primary" onclick="loadPDF()">
-                <i class="fas fa-book-open"></i> Abrir Ebook
-            </button>
-        </div>
     </header>
 
     <div class="container">
@@ -113,11 +143,26 @@
             <i class="fas fa-ad"></i> Espaço para Anúncio
         </div>
 
+        <div class="ebooks-grid" id="ebooksList">
+            <!-- Ebooks serão carregados dinamicamente -->
+        </div>
+
         <div class="loading" id="loading">
             <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
         </div>
 
         <div id="pdf-container">
+            <div class="page-info">
+                Página <span id="currentPage">1</span> de <span id="totalPages">-</span>
+            </div>
+            <div class="navigation-controls">
+                <button class="btn btn-primary" onclick="changePage(-1)">
+                    <i class="fas fa-arrow-left"></i> Anterior
+                </button>
+                <button class="btn btn-primary" onclick="changePage(1)">
+                    Próxima <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
             <canvas id="pdf-viewer"></canvas>
         </div>
 
@@ -135,76 +180,104 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js"></script>
 
     <script>
-        const loading = document.getElementById('loading');
-        const pdfContainer = document.getElementById('pdf-container');
-        const viewer = document.getElementById('pdf-viewer');
+        // Configurações
+        const ebooks = [
+            { title: "Aprendendo JavaScript", file: "viverderenda-js.pdf" },
+            { title: "Guia de HTML5", file: "viverderenda-html.pdf" },
+            { title: "CSS Moderno", file: "viverderenda-css.pdf" }
+        ];
+
         let currentPDF = null;
+        let currentPage = 1;
+        let currentScale = 1.5;
 
-        async function loadPDF() {
-            try {
-                // Exibe loading
-                loading.style.display = 'block';
-                pdfContainer.style.display = 'none';
-
-                // Carrega o PDF
-                const pdf = await pdfjsLib.getDocument('viverderenda.pdf').promise;
-                currentPDF = pdf;
-                
-                // Renderiza a primeira página
-                const page = await pdf.getPage(1);
-                const viewport = page.getViewport({ scale: 1.5 });
-                
-                // Prepara canvas
-                viewer.width = viewport.width;
-                viewer.height = viewport.height;
-                
-                // Renderiza a página
-                await page.render({
-                    canvasContext: viewer.getContext('2d'),
-                    viewport: viewport
-                }).promise;
-
-                // Exibe o container
-                pdfContainer.style.display = 'block';
-                loading.style.display = 'none';
-
-            } catch (error) {
-                console.error('Erro ao carregar PDF:', error);
-                loading.innerHTML = 'Erro ao carregar o ebook!';
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 3000);
-            }
-            // Controles de navegação (adicionar no final do try{} )
-const navControls = document.createElement('div');
-navControls.innerHTML = `
-    <div style="margin: 10px 0; text-align: center;">
-        <button onclick="changePage(-1)" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <span id="current-page" style="margin: 0 15px;">1</span>
-        <button onclick="changePage(1)" class="btn btn-primary">
-            <i class="fas fa-arrow-right"></i>
-        </button>
-    </div>
-`;
-pdfContainer.prepend(navControls);
-
-// Sistema de navegação
-window.changePage = async (delta) => {
-    const currentPage = parseInt(document.getElementById('current-page').textContent);
-    const newPage = currentPage + delta;
-    
-    if(newPage < 1 || newPage > currentPDF.numPages) return;
-
-    document.getElementById('current-page').textContent = newPage;
-    const page = await currentPDF.getPage(newPage);
-    // ... (mesmo código de renderização)
-};
+        // Inicializa a lista de ebooks
+        function initEbooks() {
+            const grid = document.getElementById('ebooksList');
+            grid.innerHTML = ebooks.map(ebook => `
+                <div class="ebook-card" onclick="loadPDF('${ebook.file}')">
+                    <h3>${ebook.title}</h3>
+                    <p><i class="fas fa-file-pdf"></i> PDF</p>
+                </div>
+            `).join('');
         }
 
-        // Atualiza ano
+        // Carrega o PDF
+        async function loadPDF(filename) {
+            try {
+                showLoading();
+                closePDF();
+                
+                currentPDF = await pdfjsLib.getDocument(filename).promise;
+                document.getElementById('totalPages').textContent = currentPDF.numPages;
+                
+                pdfContainer.style.display = 'block';
+                await renderPage(1);
+            } catch (error) {
+                alert('Erro ao carregar o ebook: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Renderiza a página
+        async function renderPage(pageNum) {
+            if (!currentPDF || pageNum < 1 || pageNum > currentPDF.numPages) return;
+            
+            showLoading();
+            currentPage = pageNum;
+            
+            const page = await currentPDF.getPage(pageNum);
+            const viewport = page.getViewport({ scale: currentScale });
+            
+            const canvas = document.getElementById('pdf-viewer');
+            const context = canvas.getContext('2d');
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            document.getElementById('currentPage').textContent = pageNum;
+            hideLoading();
+        }
+
+        // Navegação
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage > 0 && newPage <= currentPDF.numPages) {
+                renderPage(newPage);
+            }
+        }
+
+        // Controles de loading
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function closePDF() {
+            const canvas = document.getElementById('pdf-viewer');
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            pdfContainer.style.display = 'none';
+            currentPage = 1;
+        }
+
+        // Inicialização
         document.getElementById('year').textContent = new Date().getFullYear();
+        initEbooks();
+
+        // Teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changePage(-1);
+            if (e.key === 'ArrowRight') changePage(1);
+        });
     </script>
 </body>
 </html>
