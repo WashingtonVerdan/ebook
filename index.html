@@ -93,13 +93,14 @@
             height: 100%;
             background-color: rgba(0,0,0,0.9);
             z-index: 2000;
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
             background-color: #1a1a1a;
             width: 90%;
             max-width: 1000px;
-            margin: 40px auto;
             padding: 30px;
             border-radius: 10px;
             position: relative;
@@ -117,7 +118,7 @@
         #reader {
             width: 100%;
             height: 70vh;
-            margin: 20px 0;
+            margin-top: 20px;
             background-color: #fff;
         }
 
@@ -166,12 +167,11 @@
     </section>
 
     <script>
-        // Configuração dos eBooks (SUBSTITUIR COM SEUS DADOS)
         const ebooks = [
             {
                 title: "Viver de Renda",
                 cover: "https://via.placeholder.com/200x300/333/fff?text=Capa+Ebook",
-                epub: "https://cdn.jsdelivr.net/gh/WashingtonVerdan/ebook@main/epubs/viver_de_renda.epub"
+                epub: "https://washingtonverdan.github.io/ebook/epubs/viver_de_renda.epub" // URL correta do GitHub Pages
             }
         ];
 
@@ -207,11 +207,7 @@
                 const reader = document.getElementById('reader');
                 reader.innerHTML = '';
 
-                // Carrega o eBook usando CDN jsDelivr para evitar problemas de CORS
-                currentBook = ePub(ebook.epub, {
-                    requestMethod: 'xhr',
-                    encoding: 'binary'
-                });
+                currentBook = ePub(ebook.epub);
 
                 currentRendition = currentBook.renderTo('reader', {
                     width: '100%',
@@ -220,7 +216,7 @@
                 });
 
                 await currentRendition.display();
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
             } catch (error) {
                 console.error('Erro ao carregar eBook:', error);
                 alert('Erro ao carregar o eBook. Verifique o console para detalhes.');
@@ -231,7 +227,6 @@
             document.getElementById('ebookModal').style.display = 'none';
         }
 
-        // Event listeners
         document.getElementById('closeModal').addEventListener('click', closeModal);
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('ebookModal')) {
@@ -239,16 +234,13 @@
             }
         });
 
-        // Inicialização
         window.onload = () => {
             loadCatalog();
-            
+
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
                 });
             });
         };
