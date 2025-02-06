@@ -175,6 +175,32 @@
                     loading.style.display = 'none';
                 }, 3000);
             }
+            // Controles de navegação (adicionar no final do try{} )
+const navControls = document.createElement('div');
+navControls.innerHTML = `
+    <div style="margin: 10px 0; text-align: center;">
+        <button onclick="changePage(-1)" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <span id="current-page" style="margin: 0 15px;">1</span>
+        <button onclick="changePage(1)" class="btn btn-primary">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+`;
+pdfContainer.prepend(navControls);
+
+// Sistema de navegação
+window.changePage = async (delta) => {
+    const currentPage = parseInt(document.getElementById('current-page').textContent);
+    const newPage = currentPage + delta;
+    
+    if(newPage < 1 || newPage > currentPDF.numPages) return;
+
+    document.getElementById('current-page').textContent = newPage;
+    const page = await currentPDF.getPage(newPage);
+    // ... (mesmo código de renderização)
+};
         }
 
         // Atualiza ano
