@@ -1,249 +1,115 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebookflix - Leitura Online</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
+    <title>Ebook - Washington Verdan</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
-            background-color: #141414;
-            color: #fff;
             font-family: Arial, sans-serif;
         }
 
+        body {
+            background-color: #f5f5f5;
+        }
+
         header {
-            background-color: #000;
-            padding: 20px;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #303030;
-        }
-
-        .logo {
-            color: #e50914;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 30px;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: #e50914;
-        }
-
-        .main-container {
-            margin-top: 100px;
-            padding: 20px;
-        }
-
-        .ebook-row {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding: 20px 0;
-        }
-
-        .ebook-item {
-            min-width: 200px;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .ebook-item:hover {
-            transform: scale(1.05);
-        }
-
-        .ebook-item img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .ebook-title {
+            background-color: #333;
+            color: white;
             text-align: center;
-            margin-top: 10px;
-            font-size: 0.9em;
+            padding: 20px;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .modal-content {
-            background-color: #1a1a1a;
-            width: 90%;
-            max-width: 1000px;
-            padding: 30px;
-            border-radius: 10px;
-            position: relative;
+        .ebook-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            color: #fff;
-            font-size: 30px;
-            cursor: pointer;
-        }
-
-        #reader {
-            width: 100%;
-            height: 70vh;
-            margin-top: 20px;
+        .ad-space {
             background-color: #fff;
+            border: 2px dashed #ccc;
+            height: 100px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
         }
 
-        #sobre {
-            padding: 50px 20px;
-            background-color: #000;
-            line-height: 1.6;
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
 
-        @media (max-width: 768px) {
-            #reader {
-                height: 60vh;
-            }
+        embed {
+            width: 100%;
+            height: 600px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #444;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">EBOOKFLIX</div>
-        <nav>
-            <a href="#catalog">Catálogo</a>
-            <a href="#sobre">Sobre</a>
-        </nav>
+        <h1>Meu Ebook Digital</h1>
+        <p>Por Washington Verdan</p>
     </header>
 
-    <main class="main-container">
-        <section class="catalog" id="catalog">
-            <h2>Ebooks Disponíveis</h2>
-            <div class="ebook-row" id="ebookCatalog"></div>
-        </section>
-    </main>
+    <div class="container">
+        <!-- Espaço para anúncio -->
+        <div class="ad-space">
+            Espaço para Anúncio (728x90)
+            <!-- Coloque aqui o código do seu anúncio -->
+        </div>
 
-    <div class="modal" id="ebookModal">
-        <div class="modal-content">
-            <span class="modal-close" id="closeModal">&times;</span>
-            <h2 id="modalTitle"></h2>
-            <div id="reader"></div>
+        <!-- Seção do Ebook -->
+        <div class="ebook-container">
+            <h2>Leia o Ebook Online</h2>
+            <embed src="seu-ebook.pdf#toolbar=0" type="application/pdf">
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="seu-ebook.pdf" download>Clique aqui para baixar o ebook</a>
+            </p>
+        </div>
+
+        <!-- Segundo espaço para anúncio -->
+        <div class="ad-space">
+            Espaço para Anúncio (728x90)
+            <!-- Coloque aqui o código do seu anúncio -->
         </div>
     </div>
 
-    <section id="sobre">
-        <div class="container">
-            <h2>Sobre a Plataforma</h2>
-            <p>Leia seus ebooks favoritos diretamente no navegador usando GitHub Pages.</p>
-        </div>
-    </section>
+    <footer>
+        <p>Todos os direitos reservados &copy; <span id="year"></span> - Washington Verdan</p>
+    </footer>
 
     <script>
-        const ebooks = [
-            {
-                title: "Viver de Renda",
-                cover: "https://i.imgur.com/a/viverderenda.jpg",
-                epub: "https://washingtonverdan.github.io/ebook/epubs/viver_de_renda.epub" // URL correta do GitHub Pages
-            }
-        ];
-
-        let currentBook = null;
-        let currentRendition = null;
-
-        function loadCatalog() {
-            const container = document.getElementById('ebookCatalog');
-            container.innerHTML = '';
-
-            ebooks.forEach(ebook => {
-                const item = document.createElement('div');
-                item.className = 'ebook-item';
-                item.innerHTML = `
-                    <img src="${ebook.cover}" alt="${ebook.title}">
-                    <div class="ebook-title">${ebook.title}</div>
-                `;
-                item.addEventListener('click', () => openEbook(ebook));
-                container.appendChild(item);
-            });
-        }
-
-        async function openEbook(ebook) {
-            try {
-                const modal = document.getElementById('ebookModal');
-                document.getElementById('modalTitle').textContent = ebook.title;
-
-                if (currentRendition) {
-                    currentRendition.destroy();
-                    currentBook = null;
-                }
-
-                const reader = document.getElementById('reader');
-                reader.innerHTML = '';
-
-                currentBook = ePub(ebook.epub);
-
-                currentRendition = currentBook.renderTo('reader', {
-                    width: '100%',
-                    height: '100%',
-                    spread: 'none'
-                });
-
-                await currentRendition.display();
-                modal.style.display = 'flex';
-            } catch (error) {
-                console.error('Erro ao carregar eBook:', error);
-                alert('Erro ao carregar o eBook. Verifique o console para detalhes.');
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('ebookModal').style.display = 'none';
-        }
-
-        document.getElementById('closeModal').addEventListener('click', closeModal);
-        window.addEventListener('click', (e) => {
-            if (e.target === document.getElementById('ebookModal')) {
-                closeModal();
-            }
-        });
-
-        window.onload = () => {
-            loadCatalog();
-
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
-                });
-            });
-        };
+        // Atualiza o ano automaticamente no footer
+        document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
