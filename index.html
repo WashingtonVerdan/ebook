@@ -1,1 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ebookflix - Leia seu eBook Online</title>
+  
+  <!-- Estilos -->
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #141414;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    /* Cabeçalho estilo Netflix */
+    header {
+      background-color: #141414;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+    header .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: red;
+    }
+    header nav a {
+      color: #fff;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    /* Container principal */
+    .main-container {
+      margin-top: 80px; /* espaço para o header fixo */
+      display: flex;
+      flex-wrap: wrap;
+    }
+    /* Catálogo de eBooks */
+    .catalog {
+      flex: 1;
+      padding: 20px;
+    }
+    .catalog h2 {
+      margin-bottom: 10px;
+    }
+    .ebook-row {
+      display: flex;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+    .ebook-item {
+      min-width: 200px;
+      margin-right: 15px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .ebook-item:hover {
+      transform: scale(1.05);
+    }
+    .ebook-item img {
+      width: 100%;
+      border-radius: 4px;
+    }
+    .ebook-title {
+      text-align: center;
+      margin-top: 5px;
+    }
+    /* Área para Anunciantes */
+    .ads {
+      width: 250px;
+      background-color: #222;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 4px;
+      height: fit-content;
+    }
+    .ads h3 {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .ads .ad-placeholder {
+      background-color: #444;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #ccc;
+      font-size: 18px;
+    }
+    /* Modal de Leitura do eBook */
+    .modal {
+      display: none; /* escondido por padrão */
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+    }
+    .modal-content {
+      background-color: #1c1c1c;
+      margin: auto;
+      padding: 20px;
+      border-radius: 4px;
+      width: 80%;
+      max-width: 900px;
+      color: #ddd;
+    }
+    .modal-close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+    }
+    .modal h2 {
+      margin-bottom: 20px;
+    }
+    /* Área do leitor onde o epub.js renderiza o eBook */
+    #reader {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    /* Seção Sobre */
+    #sobre {
+      padding: 20px;
+      background: #222;
+      margin-top: 40px;
+    }
+    #sobre h1 {
+      margin-bottom: 10px;
+    }
+    #sobre p {
+      line-height: 1.6;
+    }
+    /* Responsividade */
+    @media(max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      .ads {
+        width: auto;
+        margin: 20px 0;
+      }
+      #reader {
+        height: 400px;
+      }
+    }
+  </style>
 
+  <!-- Biblioteca epub.js (via CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>
+</head>
+<body>
+
+  <!-- Cabeçalho -->
+  <header>
+    <div class="logo">Ebookflix</div>
+    <nav>
+      <a href="#catalog">Catálogo</a>
+      <a href="#sobre">Sobre</a>
+    </nav>
+  </header>
+
+  <!-- Container principal: Catálogo e Anúncios -->
+  <main class="main-container">
+    <!-- Catálogo de eBooks -->
+    <section class="catalog" id="catalog">
+      <h2>Catálogo de eBooks</h2>
+      <div class="ebook-row" id="ebookCatalog">
+        <!-- O item do eBook será inserido via JavaScript -->
+      </div>
+    </section>
+    
+    <!-- Área para Anunciantes -->
+    <aside class="ads">
+      <h3>Anuncie Aqui</h3>
+      <div class="ad-placeholder">
+        Espaço para anúncios
+      </div>
+    </aside>
+  </main>
+
+  <!-- Modal de Leitura -->
+  <div class="modal" id="ebookModal">
+    <div class="modal-content">
+      <span class="modal-close" id="closeModal">&times;</span>
+      <h2 id="modalTitle">Título do eBook</h2>
+      <!-- Container do epub.js -->
+      <div id="reader"></div>
+    </div>
+  </div>
+
+  <!-- Seção Sobre -->
+  <section id="sobre">
+    <h1>Sobre o Ebookflix</h1>
+    <p>
+      O Ebookflix é um projeto que demonstra a leitura online de eBooks no formato ePub.
+      Este site utiliza a biblioteca epub.js para renderizar o conteúdo do eBook armazenado no GitHub Pages.
+    </p>
+    <p>
+      O projeto foi desenvolvido para facilitar o acesso e a leitura de livros digitais de forma simples e prática.
+      Você pode incluir mais eBooks ou personalizar o layout conforme suas necessidades.
+    </p>
+  </section>
+
+  <!-- JavaScript -->
+  <script>
+    /* 
+      Defina os eBooks.
+      Neste exemplo, há apenas um eBook (arquivo "epubs/ebook.epub").
+      Certifique-se de que o arquivo esteja na pasta "epubs/" do seu repositório.
+    */
+    const ebooks = [
+      {
+        id: 1,
+        title: "Meu eBook Exemplo",
+        cover: "https://via.placeholder.com/200x300?text=Meu+eBook",
+        epub: "epubs/ebook.epub"
+      }
+    ];
+
+    // Variáveis para armazenar a instância atual do livro (para limpeza se necessário)
+    let currentBook = null;
+    let currentRendition = null;
+
+    // Função para carregar o catálogo de eBooks
+    function loadCatalog() {
+      const catalogDiv = document.getElementById('ebookCatalog');
+      ebooks.forEach(ebook => {
+        const ebookDiv = document.createElement('div');
+        ebookDiv.classList.add('ebook-item');
+        ebookDiv.innerHTML = `
+          <img src="${ebook.cover}" alt="${ebook.title}">
+          <div class="ebook-title">${ebook.title}</div>
+        `;
+        ebookDiv.addEventListener('click', () => openEbook(ebook));
+        catalogDiv.appendChild(ebookDiv);
+      });
+    }
+
+    // Função para abrir o modal e renderizar o ePub usando epub.js
+    function openEbook(ebook) {
+      const ebookModal = document.getElementById('ebookModal');
+      const modalTitle = document.getElementById('modalTitle');
+      modalTitle.textContent = ebook.title;
+
+      // Se já houver um livro carregado, destrua-o (opcional)
+      if (currentBook && currentRendition) {
+        currentRendition.destroy();
+        currentBook = null;
+      }
+
+      // Limpa o container do leitor
+      const readerElement = document.getElementById('reader');
+      readerElement.innerHTML = "";
+
+      // Carrega o arquivo ePub com epub.js
+      currentBook = ePub(ebook.epub);
+      currentRendition = currentBook.renderTo("reader", {
+        width: "100%",
+        height: "600px"
+      });
+      currentRendition.display();
+
+      ebookModal.style.display = 'block';
+    }
+
+    // Função para fechar o modal e limpar o leitor
+    function closeModal() {
+      const ebookModal = document.getElementById('ebookModal');
+      ebookModal.style.display = 'none';
+
+      // Se desejar destruir o livro ao fechar, descomente as linhas abaixo:
+      // if (currentRendition) {
+      //   currentRendition.destroy();
+      //   currentBook = null;
+      // }
+    }
+
+    // Eventos para fechar o modal
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    window.addEventListener('click', (event) => {
+      const ebookModal = document.getElementById('ebookModal');
+      if (event.target === ebookModal) {
+        closeModal();
+      }
+    });
+
+    // Inicializa o catálogo ao carregar a página
+    window.onload = loadCatalog;
+  </script>
+</body>
+</html>
