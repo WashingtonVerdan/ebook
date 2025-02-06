@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook Premium - Washington Verdan</title>
+    <title>Leitor Online - Washington Verdan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -16,7 +16,6 @@
         body {
             background-color: #f8f9fa;
             min-height: 100vh;
-            position: relative;
         }
 
         header {
@@ -43,12 +42,12 @@
             font-weight: 600;
             transition: all 0.3s ease;
             cursor: pointer;
+            border: none;
         }
 
         .btn-primary {
             background: #3498db;
             color: white;
-            border: 2px solid #3498db;
         }
 
         .btn-primary:hover {
@@ -56,19 +55,27 @@
             transform: translateY(-2px);
         }
 
-        .pdf-viewer-container {
+        #pdf-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin: 2rem 0;
-            overflow: hidden;
+            padding: 20px;
             display: none;
         }
 
         #pdf-viewer {
             width: 100%;
-            height: 70vh;
-            border: none;
+            min-height: 500px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #3498db;
+            display: none;
         }
 
         .ad-space {
@@ -88,46 +95,14 @@
             padding: 1.5rem;
             margin-top: 4rem;
         }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-            color: #3498db;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        @media (max-width: 768px) {
-            header {
-                padding: 3rem 1rem;
-            }
-            
-            #pdf-viewer {
-                height: 500px;
-            }
-        }
     </style>
 </head>
 <body>
     <header>
-        <h1>📖 Ebook Exclusivo</h1>
+        <h1>📖 Leitura Online</h1>
         <p>por Washington Verdan</p>
         <div style="margin-top: 2rem;">
-            <button class="btn btn-primary" onclick="openPDF()">
+            <button class="btn btn-primary" onclick="loadPDF()">
                 <i class="fas fa-book-open"></i> Abrir Ebook
             </button>
         </div>
@@ -138,26 +113,12 @@
             <i class="fas fa-ad"></i> Espaço para Anúncio
         </div>
 
-        <div class="features">
-            <div class="feature-card">
-                <h3><i class="fas fa-download"></i> Download Imediato</h3>
-                <p>Baixe e leia offline quando quiser</p>
-            </div>
-            <div class="feature-card">
-                <h3><i class="fas fa-mobile-alt"></i> Responsivo</h3>
-                <p>Acesse de qualquer dispositivo</p>
-            </div>
-            <div class="feature-card">
-                <h3><i class="fas fa-lock"></i> Seguro</h3>
-                <p>Conteúdo 100% protegido</p>
-            </div>
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
         </div>
 
-        <div class="pdf-viewer-container" id="pdfContainer">
-            <div class="loading" id="loading">
-                <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
-            </div>
-            <iframe id="pdf-viewer"></iframe>
+        <div id="pdf-container">
+            <canvas id="pdf-viewer"></canvas>
         </div>
 
         <div class="ad-space">
@@ -169,57 +130,55 @@
         <p>Todos os direitos reservados &copy; <span id="year"></span> - Washington Verdan</p>
     </footer>
 
-    <!-- PDF.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js" integrity="sha512-ml/QKfG3+Yes6TwOzQb7aCNtJF4PUyha6R3w8pSTo/VJSywl7ZreYvvtUso7fKevpsI+pYVV4uq82pdYDxfkJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- PDF.js Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js"></script>
 
     <script>
-        // Configurações do PDF Viewer
-        const pdfViewer = document.getElementById('pdf-viewer');
-        const pdfContainer = document.getElementById('pdfContainer');
         const loading = document.getElementById('loading');
+        const pdfContainer = document.getElementById('pdf-container');
+        const viewer = document.getElementById('pdf-viewer');
+        let currentPDF = null;
 
-        function openPDF() {
-            pdfContainer.style.display = 'block';
-            loading.style.display = 'block';
-            pdfViewer.style.display = 'none';
+        async function loadPDF() {
+            try {
+                // Exibe loading
+                loading.style.display = 'block';
+                pdfContainer.style.display = 'none';
 
-            // Carrega o PDF
-            pdfViewer.src = 'viverderenda.pdf#toolbar=0&navpanes=0&scrollbar=0';
-            
-            // Verifica quando o PDF está carregado
-            pdfViewer.onload = () => {
+                // Carrega o PDF
+                const pdf = await pdfjsLib.getDocument('viverderenda.pdf').promise;
+                currentPDF = pdf;
+                
+                // Renderiza a primeira página
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 1.5 });
+                
+                // Prepara canvas
+                viewer.width = viewport.width;
+                viewer.height = viewport.height;
+                
+                // Renderiza a página
+                await page.render({
+                    canvasContext: viewer.getContext('2d'),
+                    viewport: viewport
+                }).promise;
+
+                // Exibe o container
+                pdfContainer.style.display = 'block';
                 loading.style.display = 'none';
-                pdfViewer.style.display = 'block';
-            };
 
-            // Rolagem suave até o visualizador
-            pdfContainer.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Erro ao carregar PDF:', error);
+                loading.innerHTML = 'Erro ao carregar o ebook!';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 3000);
+            }
         }
 
-        // Verifica disponibilidade do PDF
-        fetch('viverderenda.pdf')
-            .then(response => {
-                if (!response.ok) {
-                    document.querySelector('.btn-primary').disabled = true;
-                    alert('Ebook indisponível no momento. Tente mais tarde.');
-                }
-            });
-
-        // Atualiza o ano automaticamente
+        // Atualiza ano
         document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Adiciona efeito de hover dinâmico
-        document.querySelectorAll('.feature-card').forEach(card => {
-            card.addEventListener('mouseover', () => {
-                card.style.transform = 'translateY(-5px)';
-                card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.1)';
-            });
-            
-            card.addEventListener('mouseout', () => {
-                card.style.transform = 'none';
-                card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            });
-        });
     </script>
 </body>
 </html>
