@@ -251,19 +251,15 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
+    
     <script>
-    let book;
-    let rendition;
-    let currentLocation;
-
-    const ebooks = [
-        {
-            title: "Viver de Renda",
-            cover: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/images/viverderenda.jpg",
-            file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/epubs/viverderenda.epub",
-            description: "Guia completo para investimentos"
-        }
-    ];
+    const ebooks = [{
+        title: "Viver de Renda",
+        cover: "images/viverderenda.jpg",  // Caminho relativo para a imagem
+        file: "epubs/viverderenda.epub",   // Caminho relativo para o EPUB
+        description: "Guia completo para investimentos"
+    }];
+   
 
     function renderBooks() {
         const grid = document.querySelector('.ebook-grid');
