@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online eBooks - Washington Verdan</title>
-    <meta name="description" content="Leia eBooks online gratuitamente em formato EPUB. Literatura clássica e contemporânea em um só lugar!">
+    <title>Biblioteca Digital - Washington Verdan</title>
+    <meta name="description" content="Leia eBooks online gratuitamente em formato EPUB">
     <meta name="keywords" content="ebook, epub, leitura online, livros digitais, biblioteca virtual">
     <meta name="author" content="Washington Verdan">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Online eBooks - Leitura Digital">
+    <meta property="og:title" content="Biblioteca Digital - Washington Verdan">
     <meta property="og:description" content="Leia seus eBooks favoritos online gratuitamente">
-    <meta property="og:image" content="https://exemplo.com/capa-social.jpg">
+    <meta property="og:image" content="https://SEU_USUARIO.github.io/SEU_REPOSITORIO/images/viverderenda.jpg">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Online eBooks - Washington Verdan">
+    <meta name="twitter:title" content="Biblioteca Digital - Washington Verdan">
     <meta name="twitter:description" content="Biblioteca digital com diversos títulos em EPUB">
-    <meta name="twitter:image" content="https://exemplo.com/capa-social.jpg">
+    <meta name="twitter:image" content="https://SEU_USUARIO.github.io/SEU_REPOSITORIO/images/viverderenda.jpg">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -77,9 +77,10 @@
         .ebook-cover {
             width: 100%;
             height: 400px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 5px;
             margin-bottom: 1rem;
+            background: #f0f0f0;
         }
 
         .btn-ler {
@@ -141,6 +142,8 @@
             overflow-y: auto;
             width: 90%;
             margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.6;
         }
 
         .loading-spinner {
@@ -191,26 +194,6 @@
                 gap: 1rem;
             }
         }
-        /* Adicione ao final do seu CSS */
-#area-leitura {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    padding: 2rem;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-#area-leitura img {
-    max-width: 100%;
-    height: auto;
-}
-
-@media (max-width: 768px) {
-    #area-leitura {
-        padding: 1rem;
-        font-size: 1rem;
-    }
-}
     </style>
 </head>
 <body>
@@ -221,7 +204,7 @@
 
     <div class="container">
         <div class="ebook-grid">
-            <!-- Ebooks serão inseridos dinamicamente -->
+            <!-- Ebooks serão carregados dinamicamente -->
         </div>
     </div>
 
@@ -251,41 +234,49 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
-    
     <script>
-    const ebooks = [{
-        title: "Viver de Renda",
-        cover: "images/viverderenda.jpg",  // Caminho relativo para a imagem
-        file: "epubs/viverderenda.epub",   // Caminho relativo para o EPUB
-        description: "Guia completo para investimentos"
-    }];
-   
+        let book;
+        let rendition;
+        let currentLocation;
 
-    function renderBooks() {
-        const grid = document.querySelector('.ebook-grid');
-        grid.innerHTML = '';
+        // Configuração dos eBooks (ATUALIZE ESTES CAMINHOS!)
+        const ebooks = [
+            {
+                title: "Viver de Renda",
+                cover: "images/viverderenda.jpg",       // Caminho relativo
+                file: "epubs/viverderenda.epub",        // Caminho relativo
+                description: "Guia completo para investimentos"
+            }
+        ];
 
-        ebooks.forEach(ebook => {
-            const card = document.createElement('div');
-            card.className = 'ebook-card';
-            card.innerHTML = `
-                <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
-                <h3>${ebook.title}</h3>
-                <p>${ebook.description}</p>
-                <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
-            `;
-            grid.appendChild(card);
-        });
+        function showError(message) {
+            console.error(message);
+            alert("Erro ao carregar o livro: " + message);
+        }
 
-        document.querySelectorAll('.btn-ler').forEach(button => {
-            button.addEventListener('click', function() {
-                openBook(this.dataset.file);
+        function renderBooks() {
+            const grid = document.querySelector('.ebook-grid');
+            grid.innerHTML = '';
+
+            ebooks.forEach(ebook => {
+                const card = document.createElement('div');
+                card.className = 'ebook-card';
+                card.innerHTML = `
+                    <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover" 
+                         onerror="this.src='https://via.placeholder.com/300x400?text=Capa+Não+Encontrada'">
+                    <h3>${ebook.title}</h3>
+                    <p>${ebook.description}</p>
+                    <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
+                `;
+                grid.appendChild(card);
             });
-        });
-    }
 
-    // ... (mantenha o restante das funções igual)
-</script>
+            document.querySelectorAll('.btn-ler').forEach(button => {
+                button.addEventListener('click', function() {
+                    openBook(this.dataset.file);
+                });
+            });
+        }
 
         function openBook(bookUrl) {
             const viewer = document.getElementById('ebook-viewer');
@@ -295,52 +286,57 @@
             loading.style.display = 'block';
             document.getElementById('area-leitura').innerHTML = '';
 
-            if (rendition) {
-                rendition.destroy();
+            try {
+                if (rendition) {
+                    rendition.destroy();
+                }
+
+                book = ePub(bookUrl);
+                
+                rendition = book.renderTo("area-leitura", {
+                    width: '100%',
+                    height: '100%',
+                    spread: 'none'
+                });
+
+                rendition.display().then(() => {
+                    loading.style.display = 'none';
+                }).catch(error => {
+                    showError("Erro ao exibir o livro: " + error.message);
+                });
+
+                rendition.on('locationChanged', updateLocation);
+                
+            } catch (error) {
+                showError("Erro ao carregar o arquivo: " + error.message);
             }
-
-            book = ePub(bookUrl);
-            
-            rendition = book.renderTo("area-leitura", {
-                width: '100%',
-                height: '100%',
-                spread: 'none'
-            });
-
-            rendition.display().then(() => {
-                loading.style.display = 'none';
-            });
-
-            rendition.on('locationChanged', updateLocation);
-            rendition.on('keyup', handleKeys);
         }
 
         function updateLocation(loc) {
-            currentLocation = loc.start;
-            const currentPage = currentLocation?.displayed?.page || '1';
-            document.getElementById('current-location').textContent = `Página: ${currentPage}`;
+            try {
+                currentLocation = loc.start;
+                const currentPage = currentLocation?.displayed?.page || '1';
+                document.getElementById('current-location').textContent = `Página: ${currentPage}`;
+            } catch (error) {
+                console.error("Erro na navegação:", error);
+            }
         }
 
-        function handleKeys(e) {
-            const { key } = e;
-            if (key === 'ArrowLeft') rendition.prev();
-            if (key === 'ArrowRight') rendition.next();
-        }
-
-        document.getElementById('prev-page').addEventListener('click', () => rendition.prev());
-        document.getElementById('next-page').addEventListener('click', () => rendition.next());
-        document.getElementById('close-viewer').addEventListener('click', closeViewer);
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeViewer();
+        // Controles do visualizador
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (rendition) rendition.prev();
         });
 
-        function closeViewer() {
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (rendition) rendition.next();
+        });
+
+        document.getElementById('close-viewer').addEventListener('click', () => {
             document.getElementById('ebook-viewer').style.display = 'none';
             if (rendition) {
                 rendition.destroy();
             }
-        }
+        });
 
         // Inicialização
         renderBooks();
