@@ -16,6 +16,7 @@
         body {
             background-color: #f8f9fa;
             text-align: center;
+            padding: 20px;
         }
 
         header {
@@ -52,12 +53,20 @@
             margin: 20px auto;
             border: 1px solid #ddd;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: white;
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        .error {
+            display: none;
+            color: red;
+            font-size: 16px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -70,6 +79,7 @@
         <h2>Viver de Renda</h2>
         <p>Entenda as Diferenças, Vantagens e Desvantagens para Investir com Sucesso</p>
         <button class="btn" onclick="openPDF()">📖 Ler Agora</button>
+        <p class="error" id="error-message">Não foi possível carregar o PDF. <a href="viverderenda.pdf" target="_blank">Clique aqui para abrir em outra aba.</a></p>
     </div>
 
     <div id="pdf-container">
@@ -80,9 +90,18 @@
         function openPDF() {
             const pdfContainer = document.getElementById('pdf-container');
             const pdfFrame = document.getElementById('pdf-frame');
+            const errorMessage = document.getElementById('error-message');
 
             pdfFrame.src = 'viverderenda.pdf';
             pdfContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            pdfFrame.onload = function() {
+                if (!pdfFrame.contentWindow.document.body.innerHTML) {
+                    errorMessage.style.display = 'block';
+                    pdfContainer.style.display = 'none';
+                }
+            };
         }
     </script>
 
