@@ -239,15 +239,14 @@
         let rendition;
         let currentLocation;
 
-        // Configuração dos eBooks (ATUALIZE ESTES CAMINHOS!)
         const ebooks = [
-            {
-                title: "Viver de Renda",
-                cover: "images/viverderenda.jpg",       // Caminho relativo
-                file: "epubs/viverderenda.epub",        // Caminho relativo
-                description: "Guia completo para investimentos"
-            }
-        ];
+    {
+        title: "Viver de Renda",
+        cover: "https://washingtonverdan.github.io/ebook/images/viverderenda.jpg",
+        file: "https://washingtonverdan.github.io/ebook/epubs/viverderenda.txt",
+        description: "Guia completo para investimentos"
+    }
+];
 
         function showError(message) {
             console.error(message);
@@ -278,39 +277,58 @@
             });
         }
 
-        function openBook(bookUrl) {
-            const viewer = document.getElementById('ebook-viewer');
-            const loading = document.getElementById('loading');
-            
-            viewer.style.display = 'flex';
-            loading.style.display = 'block';
-            document.getElementById('area-leitura').innerHTML = '';
+        async function openBook(bookUrl) {
+    const viewer = document.getElementById('ebook-viewer');
+    const loading = document.getElementById('loading');
 
-            try {
-                if (rendition) {
-                    rendition.destroy();
-                }
+    viewer.style.display = 'flex';
+    loading.style.display = 'block';
+    document.getElementById('area-leitura').innerHTML = '';
 
-                book = ePub(bookUrl);
-                
-                rendition = book.renderTo("area-leitura", {
-                    width: '100%',
-                    height: '100%',
-                    spread: 'none'
-                });
+    try {
+        // Fazer o download do arquivo `.txt`
+        const response = await fetch(bookUrl);
+        if (!response.ok) throw new Error("Erro ao baixar o livro.");
 
-                rendition.display().then(() => {
-                    loading.style.display = 'none';
-                }).catch(error => {
-                    showError("Erro ao exibir o livro: " + error.message);
-                });
+        // Converter para Blob
+        const blob = await response.blob();
+        const epubBlobUrl = URL.createObjectURL(blob);
 
-                rendition.on('locationChanged', updateLocation);
-                
-            } catch (error) {
-                showError("Erro ao carregar o arquivo: " + error.message);
-            }
+        // Destruir a instância anterior do livro (se houver)
+        if (rendition) {
+            rendition.destroy();
         }
+
+        // Carregar o EPUB usando o Blob gerado
+        book = ePub(epubBlobUrl);
+        rendition = book.renderTo("area-leitura", {
+            width: '100%',
+            height: '100%',
+            spread: 'none'
+        });
+
+        // Exibir o livro
+        rendition.display().then(() => {
+            loading.style.display = 'none';
+        }).catch(error => {
+            showError("Erro ao exibir o livro: " + error.message);
+        });
+
+        rendition.on('locationChanged', updateLocation);
+        
+    } catch (error) {
+        showError("Erro ao carregar o arquivo: " + error.message);
+    }
+        }
+        document.getElementById('close-viewer').addEventListener('click', () => {
+    document.getElementById('ebook-viewer').style.display = 'none';
+    if (rendition) {
+        rendition.destroy();
+    }
+    if (book) {
+        URL.revokeObjectURL(book.url);
+    }
+});
 
         function updateLocation(loc) {
             try {
