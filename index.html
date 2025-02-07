@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online eBooks - Leitura Digital</title>
-    <meta name="description" content="Leia eBooks online gratuitamente. Diversos gêneros disponíveis em formato EPUB.">
-    <meta name="keywords" content="ebook, epub, leitura online, livros digitais, literatura">
+    <title>Online eBooks - Washington Verdan</title>
+    <meta name="description" content="Leia eBooks online gratuitamente em formato EPUB. Literatura clássica e contemporânea em um só lugar!">
+    <meta name="keywords" content="ebook, epub, leitura online, livros digitais, biblioteca virtual">
     <meta name="author" content="Washington Verdan">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Online eBooks - Leitura Digital">
-    <meta property="og:description" content="Leia eBooks online gratuitamente em formato EPUB.">
+    <meta property="og:description" content="Leia seus eBooks favoritos online gratuitamente">
+    <meta property="og:image" content="https://exemplo.com/capa-social.jpg">
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    
-    <!-- Estilos -->
+    <meta name="twitter:title" content="Online eBooks - Washington Verdan">
+    <meta name="twitter:description" content="Biblioteca digital com diversos títulos em EPUB">
+    <meta name="twitter:image" content="https://exemplo.com/capa-social.jpg">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -39,7 +42,7 @@
         header {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 1rem;
+            padding: 2rem 1rem;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
@@ -63,6 +66,8 @@
             padding: 1.5rem;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .ebook-card:hover {
@@ -74,6 +79,7 @@
             height: 400px;
             object-fit: cover;
             border-radius: 5px;
+            margin-bottom: 1rem;
         }
 
         .btn-ler {
@@ -85,7 +91,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 1rem;
+            margin-top: auto;
             transition: background-color 0.3s ease;
         }
 
@@ -102,50 +108,114 @@
             background: white;
             z-index: 1000;
             display: none;
+            flex-direction: column;
+        }
+
+        #viewer-header {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #viewer-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        #viewer-controls button {
+            padding: 0.5rem 1rem;
+            background: var(--secondary-color);
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #area-leitura {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         footer {
             background: var(--primary-color);
             color: white;
             text-align: center;
-            padding: 1rem;
-            margin-top: 2rem;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
         }
 
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .social-links a {
             color: white;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         @media (max-width: 768px) {
             .ebook-grid {
                 grid-template-columns: 1fr;
             }
+            
+            #viewer-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Online eBooks</h1>
-        <p>Leia seus livros favoritos online</p>
+        <h1>Biblioteca Digital</h1>
+        <p>Leitura online de eBooks em formato EPUB</p>
     </header>
 
     <div class="container">
         <div class="ebook-grid">
-            <!-- Ebooks serão inseridos aqui via JavaScript -->
+            <!-- Ebooks serão inseridos dinamicamente -->
         </div>
     </div>
 
     <div id="ebook-viewer">
-        <button id="close-viewer" style="position: absolute; right: 20px; top: 20px; padding: 10px;">X</button>
-        <div id="area-leitura" style="width: 100%; height: 100%;"></div>
+        <div id="viewer-header">
+            <button id="close-viewer">&times; Fechar</button>
+            <div id="viewer-controls">
+                <button id="prev-page">&lt; Anterior</button>
+                <span id="current-location">Carregando...</span>
+                <button id="next-page">Próxima &gt;</button>
+            </div>
+        </div>
+        <div class="loading-spinner" id="loading"></div>
+        <div id="area-leitura"></div>
     </div>
 
     <footer>
@@ -162,48 +232,105 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
     <script>
+        let book;
+        let rendition;
+        let currentLocation;
+
         const ebooks = [
             {
                 title: "Viver de Renda",
-                cover: "viverderenda.jpg",
-                file: "viverderenda.epub",
-                description: "Aprenda a diferença entre Fiis e imóveis físicos "
+                cover: "https://via.placeholder.com/300x400",
+                file: "https://cdn.jsdelivr.net/gh/Washingtonverdan/ebook@main/epubs/viverderenda.epub",
+                description: "Aprenda mais sobre investimentos"
             },
-            // Adicione mais ebooks aqui
+            {
+                title: "Memórias Póstumas",
+                cover: "https://via.placeholder.com/300x400",
+                file: "https://cdn.jsdelivr.net/gh/yourusername/yourrepo@main/epubs/memorias.epub",
+                description: "Outro clássico de Machado de Assis"
+            }
         ];
 
-        const grid = document.querySelector('.ebook-grid');
+        function renderBooks() {
+            const grid = document.querySelector('.ebook-grid');
+            grid.innerHTML = '';
 
-        ebooks.forEach(ebook => {
-            const card = document.createElement('div');
-            card.className = 'ebook-card';
-            card.innerHTML = `
-                <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
-                <h3>${ebook.title}</h3>
-                <p>${ebook.description}</p>
-                <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
-            `;
-            grid.appendChild(card);
-        });
-
-        document.querySelectorAll('.btn-ler').forEach(button => {
-            button.addEventListener('click', function() {
-                const viewer = document.getElementById('ebook-viewer');
-                viewer.style.display = 'block';
-                
-                const book = ePub(this.dataset.file);
-                const rendition = book.renderTo("area-leitura", {
-                    width: "100%",
-                    height: "100%"
-                });
-                
-                rendition.display();
+            ebooks.forEach(ebook => {
+                const card = document.createElement('div');
+                card.className = 'ebook-card';
+                card.innerHTML = `
+                    <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
+                    <h3>${ebook.title}</h3>
+                    <p>${ebook.description}</p>
+                    <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
+                `;
+                grid.appendChild(card);
             });
+
+            document.querySelectorAll('.btn-ler').forEach(button => {
+                button.addEventListener('click', function() {
+                    openBook(this.dataset.file);
+                });
+            });
+        }
+
+        function openBook(bookUrl) {
+            const viewer = document.getElementById('ebook-viewer');
+            const loading = document.getElementById('loading');
+            
+            viewer.style.display = 'flex';
+            loading.style.display = 'block';
+            document.getElementById('area-leitura').innerHTML = '';
+
+            if (rendition) {
+                rendition.destroy();
+            }
+
+            book = ePub(bookUrl);
+            
+            rendition = book.renderTo("area-leitura", {
+                width: '100%',
+                height: '100%',
+                spread: 'none'
+            });
+
+            rendition.display().then(() => {
+                loading.style.display = 'none';
+            });
+
+            rendition.on('locationChanged', updateLocation);
+            rendition.on('keyup', handleKeys);
+        }
+
+        function updateLocation(loc) {
+            currentLocation = loc.start;
+            const currentPage = currentLocation?.displayed?.page || '1';
+            document.getElementById('current-location').textContent = `Página: ${currentPage}`;
+        }
+
+        function handleKeys(e) {
+            const { key } = e;
+            if (key === 'ArrowLeft') rendition.prev();
+            if (key === 'ArrowRight') rendition.next();
+        }
+
+        document.getElementById('prev-page').addEventListener('click', () => rendition.prev());
+        document.getElementById('next-page').addEventListener('click', () => rendition.next());
+        document.getElementById('close-viewer').addEventListener('click', closeViewer);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeViewer();
         });
 
-        document.getElementById('close-viewer').addEventListener('click', () => {
+        function closeViewer() {
             document.getElementById('ebook-viewer').style.display = 'none';
-        });
+            if (rendition) {
+                rendition.destroy();
+            }
+        }
+
+        // Inicialização
+        renderBooks();
     </script>
 </body>
 </html>
