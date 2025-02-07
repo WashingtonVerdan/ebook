@@ -252,43 +252,44 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
     <script>
-        let book;
-        let rendition;
-        let currentLocation;
+    let book;
+    let rendition;
+    let currentLocation;
 
-        const ebooks = [
-            {
-                title: "Viver de Renda",
-                cover: "https://via.placeholder.com/300x400",
-                file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/images/viverderenda.jpg",
-                file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/epubs/viverderenda.epub",
-                description: "Aprenda mais sobre investimentos"
-            },
-            
-        ];
-
-        function renderBooks() {
-            const grid = document.querySelector('.ebook-grid');
-            grid.innerHTML = '';
-
-            ebooks.forEach(ebook => {
-                const card = document.createElement('div');
-                card.className = 'ebook-card';
-                card.innerHTML = `
-                    <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
-                    <h3>${ebook.title}</h3>
-                    <p>${ebook.description}</p>
-                    <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
-                `;
-                grid.appendChild(card);
-            });
-
-            document.querySelectorAll('.btn-ler').forEach(button => {
-                button.addEventListener('click', function() {
-                    openBook(this.dataset.file);
-                });
-            });
+    const ebooks = [
+        {
+            title: "Viver de Renda",
+            cover: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/images/viverderenda.jpg",
+            file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/epubs/viverderenda.epub",
+            description: "Guia completo para investimentos"
         }
+    ];
+
+    function renderBooks() {
+        const grid = document.querySelector('.ebook-grid');
+        grid.innerHTML = '';
+
+        ebooks.forEach(ebook => {
+            const card = document.createElement('div');
+            card.className = 'ebook-card';
+            card.innerHTML = `
+                <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
+                <h3>${ebook.title}</h3>
+                <p>${ebook.description}</p>
+                <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.btn-ler').forEach(button => {
+            button.addEventListener('click', function() {
+                openBook(this.dataset.file);
+            });
+        });
+    }
+
+    // ... (mantenha o restante das funções igual)
+</script>
 
         function openBook(bookUrl) {
             const viewer = document.getElementById('ebook-viewer');
