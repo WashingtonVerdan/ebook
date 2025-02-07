@@ -64,6 +64,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             padding: 20px;
             display: none;
+            text-align: center;
         }
 
         #pdf-viewer {
@@ -109,15 +110,6 @@
             color: #666;
         }
 
-        .ebook-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
         .ebook-card {
             background: white;
             padding: 1.5rem;
@@ -131,6 +123,13 @@
         .ebook-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .ebook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
         }
     </style>
 </head>
@@ -174,10 +173,6 @@
         <canvas id="pdf-viewer"></canvas>
     </div>
 
-    <div class="ad-space">
-        <i class="fas fa-ad"></i> Espaço para Anúncio
-    </div>
-
     <footer>
         <p>Todos os direitos reservados &copy; <span id="year"></span> - Washington Verdan</p>
     </footer>
@@ -185,20 +180,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-
         const pdfContainer = document.getElementById('pdf-container');
         const loading = document.getElementById('loading');
         const viewer = document.getElementById('pdf-viewer');
-        let currentPDF = null, currentPage = 1, currentScale = 1.3;
+
+        let currentPDF = null;
+        let currentPage = 1;
+        let currentScale = 1.3;
 
         async function loadPDF(filename) {
             try {
                 showLoading();
-                closePDF();
+                pdfContainer.style.display = 'block';
+                
                 currentPDF = await pdfjsLib.getDocument(filename).promise;
                 document.getElementById('totalPages').textContent = currentPDF.numPages;
-                pdfContainer.style.display = 'block';
+                
                 await renderPage(1);
             } catch (error) {
                 alert('Erro ao carregar o ebook: ' + error.message);
@@ -208,17 +205,28 @@
         }
 
         async function renderPage(pageNum) {
-            if (!currentPDF || pageNum < 1 || pageNum > currentPDF.numPages) return;
-            showLoading();
+            if (!currentPDF) return;
+            
             currentPage = pageNum;
             const page = await currentPDF.getPage(pageNum);
             const viewport = page.getViewport({ scale: currentScale });
-            viewer.width = viewport.width;
+
             viewer.height = viewport.height;
-            await page.render({ canvasContext: viewer.getContext('2d'), viewport }).promise;
+            viewer.width = viewport.width;
+            
+            await page.render({
+                canvasContext: viewer.getContext('2d'),
+                viewport: viewport
+            }).promise;
+
             document.getElementById('currentPage').textContent = pageNum;
-            hideLoading();
         }
+
+        function changePage(delta) {
+            if (currentPDF) renderPage(currentPage + delta);
+        }
+
+        document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
