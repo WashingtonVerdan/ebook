@@ -1,92 +1,209 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitura Virtual - Washington Verdan</title>
+    <title>Online eBooks - Leitura Digital</title>
+    <meta name="description" content="Leia eBooks online gratuitamente. Diversos gêneros disponíveis em formato EPUB.">
+    <meta name="keywords" content="ebook, epub, leitura online, livros digitais, literatura">
+    <meta name="author" content="Washington Verdan">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Online eBooks - Leitura Digital">
+    <meta property="og:description" content="Leia eBooks online gratuitamente em formato EPUB.">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f8f9fa;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
         }
 
         body {
-            background-color: #f8f9fa;
-            text-align: center;
-            padding: 20px;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--background-color);
         }
 
         header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 20px;
-            font-size: 24px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .container {
-            margin: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .btn {
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
+        .ebook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ebook-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .ebook-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ebook-cover {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
             border-radius: 5px;
         }
 
-        .btn:hover {
+        .btn-ler {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-ler:hover {
             background-color: #2980b9;
         }
 
-        #pdf-container {
-            display: none;
-            width: 100%;
-            max-width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            background: white;
-        }
-
-        iframe {
+        #ebook-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            background: white;
+            z-index: 1000;
+            display: none;
+        }
+
+        footer {
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .ebook-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-
-    <header>📖 Leitura Virtual - Washington Verdan</header>
+    <header>
+        <h1>Online eBooks</h1>
+        <p>Leia seus livros favoritos online</p>
+    </header>
 
     <div class="container">
-        <img src="viverderenda.jpg" alt="Capa do Livro" style="width: 200px; border-radius: 10px;">
-        <h2>Viver de Renda</h2>
-        <p>Entenda as Diferenças, Vantagens e Desvantagens para Investir com Sucesso</p>
-        <button class="btn" onclick="openPDF()">📖 Ler Agora</button>
+        <div class="ebook-grid">
+            <!-- Ebooks serão inseridos aqui via JavaScript -->
+        </div>
     </div>
 
-    <div id="pdf-container">
-        <iframe id="pdf-frame"></iframe>
+    <div id="ebook-viewer">
+        <button id="close-viewer" style="position: absolute; right: 20px; top: 20px; padding: 10px;">X</button>
+        <div id="area-leitura" style="width: 100%; height: 100%;"></div>
     </div>
 
+    <footer>
+        <p>Desenvolvido por Washington Verdan</p>
+        <div class="social-links">
+            <a href="https://wa.me/+5502997566512" target="_blank">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+            <a href="https://instagram.com/washingtonverdan" target="_blank">
+                <i class="fab fa-instagram"></i> Instagram
+            </a>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js"></script>
     <script>
-        function openPDF() {
-            const pdfContainer = document.getElementById('pdf-container');
-            const pdfFrame = document.getElementById('pdf-frame');
+        const ebooks = [
+            {
+                title: "Exemplo eBook 1",
+                cover: "capa1.jpg",
+                file: "livro1.epub",
+                description: "Descrição do primeiro livro"
+            },
+            // Adicione mais ebooks aqui
+        ];
 
-            pdfFrame.src = `https://docs.google.com/gview?url=${window.location.origin}/viverderenda.pdf&embedded=true`;
-            pdfContainer.style.display = 'block';
-        }
+        const grid = document.querySelector('.ebook-grid');
+
+        ebooks.forEach(ebook => {
+            const card = document.createElement('div');
+            card.className = 'ebook-card';
+            card.innerHTML = `
+                <img src="${ebook.cover}" alt="${ebook.title}" class="ebook-cover">
+                <h3>${ebook.title}</h3>
+                <p>${ebook.description}</p>
+                <button class="btn-ler" data-file="${ebook.file}">Ler Agora</button>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.querySelectorAll('.btn-ler').forEach(button => {
+            button.addEventListener('click', function() {
+                const viewer = document.getElementById('ebook-viewer');
+                viewer.style.display = 'block';
+                
+                const book = ePub(this.dataset.file);
+                const rendition = book.renderTo("area-leitura", {
+                    width: "100%",
+                    height: "100%"
+                });
+                
+                rendition.display();
+            });
+        });
+
+        document.getElementById('close-viewer').addEventListener('click', () => {
+            document.getElementById('ebook-viewer').style.display = 'none';
+        });
     </script>
-
 </body>
 </html>
