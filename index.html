@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitura Virtual- Washington Verdan</title>
+    <title>Leitura Virtual - Washington Verdan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -109,6 +109,15 @@
             color: #666;
         }
 
+        .ebook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .ebook-card {
             background: white;
             padding: 1.5rem;
@@ -123,9 +132,7 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    
-}
+    </style>
 </head>
 <body>
     <header>
@@ -134,75 +141,63 @@
     </header>
 
     <div class="ad-space">
-    <a href="https://a.co/d/efVaHNt" target="_blank">
-        <img src="anunciolivro.jpg" alt="Meus Livros na Amazon" style="max-width:100%; height:auto; border:none;">
-    </a>
+        <a href="https://a.co/d/efVaHNt" target="_blank">
+            <img src="anunciolivro.jpg" alt="Meus Livros na Amazon" style="max-width:100%; height:auto; border:none;">
+        </a>
     </div>
 
-        <div class="ebook-grid">
-  <!-- Ebook 1 -->
-  <div class="ebook-card">
-    <img src="viverderenda.jpg" alt="Capa do livro Viver de Renda" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-    <h3><i class="fas fa-book"></i> Viver de Renda</h3>
-    <p>Entenda as Diferenças, Vantagens e Desvantagens para Investir com Sucesso</p>
-    <button class="btn btn-primary" onclick="loadPDF('viverderenda.pdf')">Ler Agora</button>
-  </div>
-            
-
-            
-
-        <div class="loading" id="loading">
-            <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
+    <div class="ebook-grid">
+        <div class="ebook-card">
+            <img src="viverderenda.jpg" alt="Capa do livro Viver de Renda" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            <h3><i class="fas fa-book"></i> Viver de Renda</h3>
+            <p>Entenda as Diferenças, Vantagens e Desvantagens para Investir com Sucesso</p>
+            <button class="btn btn-primary" onclick="loadPDF('viverderenda.pdf')">Ler Agora</button>
         </div>
+    </div>
 
-        <div id="pdf-container">
-            <div class="page-info">
-                Página <span id="currentPage">1</span> de <span id="totalPages">-</span>
-            </div>
-            <div class="navigation-controls">
-                <button class="btn btn-primary" onclick="changePage(-1)">
-                    <i class="fas fa-arrow-left"></i> Anterior
-                </button>
-                <button class="btn btn-primary" onclick="changePage(1)">
-                    Próxima <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-            <canvas id="pdf-viewer"></canvas>
-        </div>
+    <div class="loading" id="loading">
+        <i class="fas fa-spinner fa-spin"></i> Carregando ebook...
+    </div>
 
-        <div class="ad-space">
-            <i class="fas fa-ad"></i> Espaço para Anúncio
+    <div id="pdf-container">
+        <div class="page-info">
+            Página <span id="currentPage">1</span> de <span id="totalPages">-</span>
         </div>
+        <div class="navigation-controls">
+            <button class="btn btn-primary" onclick="changePage(-1)">
+                <i class="fas fa-arrow-left"></i> Anterior
+            </button>
+            <button class="btn btn-primary" onclick="changePage(1)">
+                Próxima <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <canvas id="pdf-viewer"></canvas>
+    </div>
+
+    <div class="ad-space">
+        <i class="fas fa-ad"></i> Espaço para Anúncio
     </div>
 
     <footer>
         <p>Todos os direitos reservados &copy; <span id="year"></span> - Washington Verdan</p>
     </footer>
 
-    <!-- PDF.js Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js"></script>
 
     <script>
-        // Elementos DOM
+        document.getElementById('year').textContent = new Date().getFullYear();
+
         const pdfContainer = document.getElementById('pdf-container');
         const loading = document.getElementById('loading');
         const viewer = document.getElementById('pdf-viewer');
-        
-        // Variáveis de controle
-        let currentPDF = null;
-        let currentPage = 1;
-        let currentScale = 1.3;
+        let currentPDF = null, currentPage = 1, currentScale = 1.3;
 
-        // Carrega o PDF
         async function loadPDF(filename) {
             try {
                 showLoading();
                 closePDF();
-                
                 currentPDF = await pdfjsLib.getDocument(filename).promise;
                 document.getElementById('totalPages').textContent = currentPDF.numPages;
-                
                 pdfContainer.style.display = 'block';
                 await renderPage(1);
             } catch (error) {
@@ -212,60 +207,18 @@
             }
         }
 
-        // Renderiza a página
         async function renderPage(pageNum) {
             if (!currentPDF || pageNum < 1 || pageNum > currentPDF.numPages) return;
-            
             showLoading();
             currentPage = pageNum;
-            
             const page = await currentPDF.getPage(pageNum);
             const viewport = page.getViewport({ scale: currentScale });
-            
-            viewer.height = viewport.height;
             viewer.width = viewport.width;
-            
-            await page.render({
-                canvasContext: viewer.getContext('2d'),
-                viewport: viewport
-            }).promise;
-
+            viewer.height = viewport.height;
+            await page.render({ canvasContext: viewer.getContext('2d'), viewport }).promise;
             document.getElementById('currentPage').textContent = pageNum;
             hideLoading();
         }
-
-        // Navegação entre páginas
-        function changePage(delta) {
-            const newPage = currentPage + delta;
-            if (newPage > 0 && newPage <= currentPDF.numPages) {
-                renderPage(newPage);
-            }
-        }
-
-        // Controles de loading
-        function showLoading() {
-            loading.style.display = 'block';
-        }
-
-        function hideLoading() {
-            loading.style.display = 'none';
-        }
-
-        function closePDF() {
-            const context = viewer.getContext('2d');
-            context.clearRect(0, 0, viewer.width, viewer.height);
-            pdfContainer.style.display = 'none';
-            currentPage = 1;
-        }
-
-        // Configurações iniciais
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Navegação por teclado
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') changePage(-1);
-            if (e.key === 'ArrowRight') changePage(1);
-        });
     </script>
 </body>
 </html>
