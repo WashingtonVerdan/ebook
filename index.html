@@ -191,6 +191,26 @@
                 gap: 1rem;
             }
         }
+        /* Adicione ao final do seu CSS */
+#area-leitura {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#area-leitura img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    #area-leitura {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -240,15 +260,11 @@
             {
                 title: "Viver de Renda",
                 cover: "https://via.placeholder.com/300x400",
+                file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/images/viverderenda.jpg",
                 file: "https://cdn.jsdelivr.net/gh/washingtonverdan/ebook@main/epubs/viverderenda.epub",
                 description: "Aprenda mais sobre investimentos"
             },
-            {
-                title: "Memórias Póstumas",
-                cover: "https://via.placeholder.com/300x400",
-                file: "https://cdn.jsdelivr.net/gh/yourusername/yourrepo@main/epubs/memorias.epub",
-                description: "Outro clássico de Machado de Assis"
-            }
+            
         ];
 
         function renderBooks() {
