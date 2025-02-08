@@ -68,11 +68,17 @@
 
         .pdf-viewer {
             width: 100%;
-            overflow-x: auto;
+            display: flex;
+            justify-content: center;
             margin: 20px 0;
             background: #f8f9fa;
             border-radius: 5px;
             padding: 10px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
         }
 
         .controls {
@@ -99,6 +105,24 @@
         .controls button:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
+        }
+
+        .zoom-controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .zoom-controls button {
+            padding: 8px 15px;
+            font-size: 1rem;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
         }
 
         .loading {
@@ -141,7 +165,7 @@
         Carregando...
     </div>
 
-    <div class="pdf-viewer" id="pdf-viewer">
+    <div class="pdf-viewer">
         <canvas id="pdf-canvas"></canvas>
     </div>
 
@@ -149,6 +173,11 @@
         <button id="prev-page" disabled>Anterior</button>
         <span id="page-info">Página 1 de 1</span>
         <button id="next-page" disabled>Próxima</button>
+    </div>
+
+    <div class="zoom-controls">
+        <button id="zoom-in">+</button>
+        <button id="zoom-out">-</button>
     </div>
 </div>
 
@@ -158,7 +187,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
 <script>
-    // Configuração do PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
 
     let pdfDoc = null;
@@ -166,46 +194,37 @@
     let scale = 1.5;
     const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
-
-    // Elementos da UI
     const loading = document.getElementById('loading');
     const prevButton = document.getElementById('prev-page');
     const nextButton = document.getElementById('next-page');
     const pageInfo = document.getElementById('page-info');
 
-    // Função para atualizar os botões de navegação
     function updatePageControls() {
         prevButton.disabled = currentPage <= 1;
         nextButton.disabled = currentPage >= pdfDoc.numPages;
         pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
     }
 
-    // Função para renderizar uma página
     async function renderPage(pageNum) {
         try {
             loading.style.display = 'block';
             const page = await pdfDoc.getPage(pageNum);
             const viewport = page.getViewport({ scale });
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
 
-            await page.render({
-                canvasContext: ctx,
-                viewport: viewport
-            }).promise;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: ctx, viewport }).promise;
 
             currentPage = pageNum;
             updatePageControls();
         } catch (error) {
             console.error('Erro ao renderizar página:', error);
-            alert('Erro ao carregar a página');
         } finally {
             loading.style.display = 'none';
         }
     }
 
-    // Evento para carregar o eBook selecionado
     document.getElementById('load-ebook').addEventListener('click', async () => {
         try {
             const ebook = document.getElementById('ebook-select').value;
@@ -214,25 +233,16 @@
             await renderPage(1);
         } catch (error) {
             console.error('Erro ao carregar eBook:', error);
-            alert('Erro ao carregar o eBook');
         } finally {
             loading.style.display = 'none';
         }
     });
 
-    // Navegação entre páginas
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) renderPage(currentPage - 1);
-    });
+    prevButton.addEventListener('click', () => renderPage(currentPage - 1));
+    nextButton.addEventListener('click', () => renderPage(currentPage + 1));
 
-    nextButton.addEventListener('click', () => {
-        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
-    });
-
-    // Redimensionamento responsivo
-    window.addEventListener('resize', () => {
-        if (pdfDoc) renderPage(currentPage);
-    });
+    document.getElementById('zoom-in').addEventListener('click', () => { scale += 0.2; renderPage(currentPage); });
+    document.getElementById('zoom-out').addEventListener('click', () => { scale -= 0.2; renderPage(currentPage); });
 </script>
 
 </body>
