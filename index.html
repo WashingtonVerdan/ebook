@@ -46,34 +46,21 @@
             background-color: #28a745;
             color: white;
         }
-        .btn-tertiary {
-            background-color: #dc3545;
-            color: white;
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
         }
         #ebook-frame {
             width: 100%;
             height: 80vh;
             border: none;
-            display: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background-color: white;
-            margin: 15% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 5px;
-        }
-        .hidden {
             display: none;
         }
     </style>
@@ -83,20 +70,17 @@
 <div class="container">
     <h2 id="welcome-message">Bem-vindo ao Leitor de eBooks</h2>
 
-    <div id="ebook-container">
-        <h3>Escolha um eBook:</h3>
-        <button type="button" class="btn-secondary" onclick="handleEbookSelection('viverderenda.pdf')">Viver de Renda</button>
-        <button type="button" class="btn-secondary" onclick="handleEbookSelection('ebook2.pdf')">eBook 2</button>
+    <div id="form-container">
+        <h3>Insira seus dados</h3>
+        <input type="text" id="user-name" placeholder="Digite seu nome" required>
+        <input type="number" id="user-age" placeholder="Digite sua idade" required>
+        <button type="button" class="btn-primary" id="submit-user">Entrar</button>
     </div>
 
-    <div id="registration-modal" class="modal">
-        <div class="modal-content">
-            <h3>Cadastro para Leitura</h3>
-            <input type="text" id="user-name" placeholder="Digite seu nome" required>
-            <input type="number" id="user-age" placeholder="Digite sua idade" required>
-            <button type="button" class="btn-primary" onclick="registerUser()">Cadastrar e Ler</button>
-            <button type="button" class="btn-tertiary" onclick="closeModal()">Cancelar</button>
-        </div>
+    <div id="ebook-container" class="hidden">
+        <h3>Escolha um eBook:</h3>
+        <button type="button" class="btn-secondary" aria-label="Abrir eBook Viver de Renda" onclick="openEbook('viverderenda.pdf')">Viver de Renda</button>
+        <button type="button" class="btn-secondary" aria-label="Abrir eBook 2" onclick="openEbook('ebook2.pdf')">eBook 2</button>
     </div>
 
     <iframe id="ebook-frame"></iframe>
@@ -118,64 +102,55 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.database(app);
 
-let selectedEbook = null;
+// Função para alternar a visibilidade dos elementos
+function toggleDisplay(hideElement, showElement) {
+    document.getElementById(hideElement).classList.toggle('hidden');
+    document.getElementById(showElement).classList.toggle('hidden');
+}
 
-// Verificar usuário ao carregar a página
-document.addEventListener('DOMContentLoaded', () => {
-    checkUser();
-});
-
+// Verifica se o usuário já está cadastrado
 function checkUser() {
     const userId = localStorage.getItem('userId');
     if (userId) {
-        database.ref('users/' + userId).once('value').then(snapshot => {
+        const userRef = database.ref('users/' + userId);
+        userRef.get().then((snapshot) => {
             if (snapshot.exists()) {
                 const userData = snapshot.val();
                 document.getElementById('welcome-message').textContent = `Bem-vindo de volta, ${userData.name}!`;
+                toggleDisplay('form-container', 'ebook-container');
             }
+        }).catch((error) => {
+            console.error("Erro ao carregar os dados do usuário:", error);
         });
     }
 }
 
-function handleEbookSelection(ebookUrl) {
-    if (localStorage.getItem('userId')) {
-        openEbook(ebookUrl);
-    } else {
-        selectedEbook = ebookUrl;
-        document.getElementById('registration-modal').style.display = 'block';
-    }
-}
-
-function registerUser() {
+// Salvar os dados do usuário no Firebase
+document.getElementById('submit-user').addEventListener('click', () => {
     const name = document.getElementById('user-name').value.trim();
     const age = document.getElementById('user-age').value.trim();
 
     if (name && age && !isNaN(parseInt(age))) {
-        const userId = crypto.randomUUID();
+        const userId = crypto.randomUUID(); // Use UUID para maior segurança
         database.ref('users/' + userId).set({ name, age })
-            .then(() => {
-                localStorage.setItem('userId', userId);
-                document.getElementById('welcome-message').textContent = `Bem-vindo, ${name}!`;
-                closeModal();
-                if (selectedEbook) openEbook(selectedEbook);
-            })
-            .catch(error => console.error("Erro ao salvar:", error));
+        .then(() => {
+            localStorage.setItem('userId', userId);
+            document.getElementById('welcome-message').textContent = `Bem-vindo, ${name}!`;
+            toggleDisplay('form-container', 'ebook-container');
+        })
+        .catch(error => console.error("Erro ao salvar:", error));
     } else {
-        alert('Por favor, preencha todos os campos corretamente.');
+        alert('Preencha todos os campos corretamente.');
     }
-}
+});
 
+// Abrir eBook dentro do iframe para melhor leitura em celular
 function openEbook(ebookUrl) {
     document.getElementById('ebook-frame').src = ebookUrl;
     document.getElementById('ebook-frame').style.display = 'block';
 }
 
-function closeModal() {
-    document.getElementById('registration-modal').style.display = 'none';
-    selectedEbook = null;
-    document.getElementById('user-name').value = '';
-    document.getElementById('user-age').value = '';
-}
+checkUser();
 </script>
 
 </body>
