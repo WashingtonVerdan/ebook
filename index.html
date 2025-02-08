@@ -103,10 +103,9 @@
     <p>&copy; 2025 Leitor de eBooks. Todos os direitos reservados.</p>
 </footer>
 
-<!-- Script para ler e exibir o PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
 <script>
-    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF
+    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
 
     // Inicializa o PDF.js
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -175,49 +174,45 @@
     });
 </script>
 
-<!-- Exibir os dados do Firebase -->
-<h1>Dados do Usuário</h1>
+<h1>Dados do usuário</h1>
 <div id="data-container"></div>
 
-<!-- Script Firebase -->
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Configuração do Firebase (substitua pelos seus dados)
-    const firebaseConfig = {
-        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-        authDomain: "livro-coletivo.firebaseapp.com",
-        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-        projectId: "livro-coletivo",
-        storageBucket: "livro-coletivo.appspot.com",
-        messagingSenderId: "658238715653",
-        appId: "1:658238715653:web:58d513d162940ff61de96c"
-    };
+  // Configuração do Firebase (substitua pelos seus dados)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
+    authDomain: "livro-coletivo.firebaseapp.com",
+    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
+    projectId: "livro-coletivo",
+    storageBucket: "livro-coletivo.firebasestorage.app",
+    messagingSenderId: "658238715653",
+    appId: "1:658238715653:web:58d513d162940ff61de96c"
+  };
 
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
 
-    // Referência para a chave 'usuarios/1' no Firebase
-    const dbRef = ref(database, 'usuarios/1');
+  // Referência para a chave 'usuarios/1' no Firebase
+  const dbRef = ref(database, 'usuarios/1');
 
-    // Lendo os dados
-    get(dbRef).then((snapshot) => {
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            // Exibe os dados no console
-            console.log(data);
+  // Lendo os dados
+  get(dbRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();  // Pega os dados do usuário "1"
 
-            // Exibe os dados no HTML
-            const container = document.getElementById("data-container");
-            container.innerHTML = `Nome: ${data.nome}, Idade: ${data.idade}`;
-        } else {
-            console.log("Não há dados disponíveis");
-        }
-    }).catch((error) => {
-        console.error("Erro ao ler os dados: ", error);
-    });
+      // Exibe os dados de nome e idade
+      const container = document.getElementById("data-container");
+      container.innerHTML = `Nome: ${data.nome}, Idade: ${data.idade}`;
+    } else {
+      console.log("Nenhum dado encontrado!");
+    }
+  }).catch((error) => {
+    console.error("Erro ao ler os dados:", error);
+  });
 </script>
 
 </body>
