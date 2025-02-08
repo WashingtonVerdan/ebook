@@ -227,5 +227,20 @@
 
 <button onclick="salvarDados()">Salvar Dados</button>
 
+
+// Referência para a chave 'usuarios/1' no Firebase
+const dbRef = firebase.database().ref('usuarios/1');
+
+// Lendo os dados
+dbRef.once('value', (snapshot) => {
+  const data = snapshot.val();  // Pega os dados do usuário "1"
+  
+  // Exibe no console os dados de nome e idade para verificação
+  console.log(data);  
+
+  // Encontrar o elemento com id 'data-container' e exibir os dados nele
+  const container = document.getElementById("data-container");
+  container.innerHTML = `Nome: ${data.nome}, Idade: ${data.idade}`;
+});
 </body>
 </html>
