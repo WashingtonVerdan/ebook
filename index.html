@@ -15,7 +15,6 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column;
         }
 
         header {
@@ -112,8 +111,8 @@
     <!-- Exibindo os dados do usuário -->
     <div class="data-container" id="data-container">
         <h2>DADOS DO USUÁRIO</h2>
-        <p id="nome">Carregando nome...</p>
-        <p id="idade">Carregando idade...</p>
+        <p id="user-name">Carregando nome...</p>
+        <p id="user-age">Carregando idade...</p>
     </div>
 </div>
 
@@ -147,13 +146,10 @@
         usuarioRef.once('value', (snapshot) => {
             const usuario = snapshot.val();
             if (usuario) {
-                // Exibe os dados do usuário
-                document.getElementById('nome').textContent = `Nome: ${usuario.nome}`;
-                document.getElementById('idade').textContent = `Idade: ${usuario.idade}`;
+                document.getElementById('user-name').textContent = `Nome: ${usuario.nome}`;
+                document.getElementById('user-age').textContent = `Idade: ${usuario.idade}`;
             } else {
                 console.log("Dados do usuário não encontrados.");
-                document.getElementById('nome').textContent = 'Nome: Não encontrado';
-                document.getElementById('idade').textContent = 'Idade: Não encontrado';
             }
         });
     }
@@ -162,7 +158,7 @@
     lerDadosDoUsuario();
 
     // Inicializa o PDF.js
-    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
+    const url = 'viverderenda.pdf';  // Substitua pelo nome correto do seu PDF ou caminho.
 
     let pdfDoc = null;
     let pageNum = 1;
@@ -179,7 +175,6 @@
         renderPage(pageNum);
     }).catch(err => {
         console.error('Erro ao carregar o PDF: ', err);
-        alert('Erro ao carregar o PDF: ' + err.message);  // Exibe uma mensagem de erro
     });
 
     // Renderiza a página
