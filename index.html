@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leitura de eBooks</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,17 +44,6 @@
             background-color: #28a745;
             color: white;
         }
-        input {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .hidden {
-            display: none;
-        }
         #ebook-frame {
             width: 100%;
             height: 80vh;
@@ -68,85 +55,19 @@
 <body>
 
 <div class="container">
-    <h2 id="welcome-message">Bem-vindo ao Leitor de eBooks</h2>
-
-    <div id="form-container">
-        <h3>Insira seus dados</h3>
-        <input type="text" id="user-name" placeholder="Digite seu nome" required>
-        <input type="number" id="user-age" placeholder="Digite sua idade" required>
-        <button class="btn-primary" id="submit-user">Entrar</button>
-    </div>
-
-    <div id="ebook-container" class="hidden">
-        <h3>Escolha um eBook:</h3>
-        <button class="btn-secondary" onclick="openEbook('ebook1.pdf')">eBook 1</button>
-        <button class="btn-secondary" onclick="openEbook('ebook2.pdf')">eBook 2</button>
-    </div>
-
+    <h2>Leitor de eBooks</h2>
+    <h3>Escolha um eBook para ler:</h3>
+    <button class="btn-secondary" onclick="openEbook('viverderenda.pdf')">Viver de Renda</button>
+    <button class="btn-secondary" onclick="openEbook('ebook2.pdf')">eBook 2</button>
     <iframe id="ebook-frame"></iframe>
 </div>
 
 <script>
-// Configuração do Firebase
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID",
-};
-
-// Inicializar Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database(app);
-
-// Verifica se o usuário já está cadastrado
-function checkUser() {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-        const userRef = firebase.database().ref('users/' + userId);
-        userRef.get().then((snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                document.getElementById('welcome-message').textContent = `Bem-vindo de volta, ${userData.name}!`;
-                document.getElementById('form-container').classList.add('hidden');
-                document.getElementById('ebook-container').classList.remove('hidden');
-            }
-        }).catch((error) => {
-            console.error("Erro ao carregar os dados do usuário:", error);
-        });
-    }
-}
-
-// Salvar os dados do usuário no Firebase
-document.getElementById('submit-user').addEventListener('click', () => {
-    const name = document.getElementById('user-name').value.trim();
-    const age = document.getElementById('user-age').value.trim();
-
-    if (name && age) {
-        const userId = Date.now(); // ID único
-        firebase.database().ref('users/' + userId).set({ name, age })
-        .then(() => {
-            localStorage.setItem('userId', userId);
-            document.getElementById('welcome-message').textContent = `Bem-vindo, ${name}!`;
-            document.getElementById('form-container').classList.add('hidden');
-            document.getElementById('ebook-container').classList.remove('hidden');
-        })
-        .catch(error => console.error("Erro ao salvar:", error));
-    } else {
-        alert('Preencha todos os campos.');
-    }
-});
-
-// Abrir eBook dentro do iframe para melhor leitura em celular
+// Abrir eBook dentro do iframe para melhor leitura em celular e PC
 function openEbook(ebookUrl) {
     document.getElementById('ebook-frame').src = ebookUrl;
     document.getElementById('ebook-frame').style.display = 'block';
 }
-
-checkUser();
 </script>
 
 </body>
