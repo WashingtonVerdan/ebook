@@ -205,5 +205,27 @@
 </script>
 <button onclick="salvarDados()">Salvar Dados</button>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com/"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  function salvarDados() {
+    set(ref(database, "usuarios/1"), {
+      nome: "Washington",
+      idade: 30
+    });
+    alert("Dados salvos!");
+  }
+</script>
+
+<button onclick="salvarDados()">Salvar Dados</button>
+
 </body>
 </html>
