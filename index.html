@@ -15,6 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column;
         }
 
         header {
@@ -111,8 +112,8 @@
     <!-- Exibindo os dados do usuário -->
     <div class="data-container" id="data-container">
         <h2>DADOS DO USUÁRIO</h2>
-        <p id="nome"></p>
-        <p id="idade"></p>
+        <p id="nome">Carregando nome...</p>
+        <p id="idade">Carregando idade...</p>
     </div>
 </div>
 
@@ -151,6 +152,8 @@
                 document.getElementById('idade').textContent = `Idade: ${usuario.idade}`;
             } else {
                 console.log("Dados do usuário não encontrados.");
+                document.getElementById('nome').textContent = 'Nome: Não encontrado';
+                document.getElementById('idade').textContent = 'Idade: Não encontrado';
             }
         });
     }
@@ -159,7 +162,7 @@
     lerDadosDoUsuario();
 
     // Inicializa o PDF.js
-    const url = 'viverderenda.pdf';  // Certifique-se de que o arquivo PDF está no mesmo diretório
+    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
 
     let pdfDoc = null;
     let pageNum = 1;
@@ -176,6 +179,7 @@
         renderPage(pageNum);
     }).catch(err => {
         console.error('Erro ao carregar o PDF: ', err);
+        alert('Erro ao carregar o PDF: ' + err.message);  // Exibe uma mensagem de erro
     });
 
     // Renderiza a página
