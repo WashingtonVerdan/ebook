@@ -249,6 +249,30 @@
         renderPage(pageNum);
     });
 </script>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
+    authDomain: "livro-coletivo.firebaseapp.com",
+    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
+    projectId: "livro-coletivo",
+    storageBucket: "livro-coletivo.firebasestorage.app",
+    messagingSenderId: "658238715653",
+    appId: "1:658238715653:web:58d513d162940ff61de96c",
+    measurementId: "G-YDJ85X3DZT"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
 </body>
 </html>
