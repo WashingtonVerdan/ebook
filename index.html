@@ -223,7 +223,7 @@
     });
     alert("Dados salvos!");
   }
-</script>
+
 
 <button onclick="salvarDados()">Salvar Dados</button>
 
@@ -242,5 +242,7 @@ dbRef.once('value', (snapshot) => {
   const container = document.getElementById("data-container");
   container.innerHTML = `Nome: ${data.nome}, Idade: ${data.idade}`;
 });
+
+</script>
 </body>
 </html>
