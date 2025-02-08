@@ -80,6 +80,16 @@
             bottom: 0;
             width: 100%;
         }
+
+        .data-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .data-container p {
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -97,6 +107,13 @@
         <button id="prev-page">Página Anterior</button>
         <button id="next-page">Próxima Página</button>
     </div>
+
+    <!-- Exibindo os dados do usuário -->
+    <div class="data-container" id="data-container">
+        <h2>DADOS DO USUÁRIO</h2>
+        <p id="nome"></p>
+        <p id="idade"></p>
+    </div>
 </div>
 
 <footer>
@@ -104,11 +121,45 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js"></script>
+
 <script>
-    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
+    // Sua configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
+        authDomain: "livro-coletivo.firebaseapp.com",
+        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
+        projectId: "livro-coletivo",
+        storageBucket: "livro-coletivo.firebasestorage.app",
+        messagingSenderId: "658238715653",
+        appId: "1:658238715653:web:58d513d162940ff61de96c"
+    };
+
+    // Inicializa o Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Função para ler os dados do Firebase
+    function lerDadosDoUsuario() {
+        const usuarioRef = database.ref('usuarios/1');
+        usuarioRef.once('value', (snapshot) => {
+            const usuario = snapshot.val();
+            if (usuario) {
+                // Exibe os dados do usuário
+                document.getElementById('nome').textContent = `Nome: ${usuario.nome}`;
+                document.getElementById('idade').textContent = `Idade: ${usuario.idade}`;
+            } else {
+                console.log("Dados do usuário não encontrados.");
+            }
+        });
+    }
+
+    // Carrega os dados ao carregar a página
+    lerDadosDoUsuario();
 
     // Inicializa o PDF.js
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
 
     let pdfDoc = null;
     let pageNum = 1;
@@ -131,23 +182,19 @@
     function renderPage(num) {
         pageIsRendering = true;
 
-        // Obtém a página do PDF
         pdfDoc.getPage(num).then(page => {
             const scale = 1.5;
             const viewport = page.getViewport({ scale });
 
-            // Configura o tamanho do canvas para a página
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            // Renderiza a página no canvas
             page.render({
                 canvasContext: ctx,
                 viewport: viewport
             }).promise.then(() => {
                 pageIsRendering = false;
 
-                // Verifica se há uma página pendente
                 if (pageNumIsPending !== null) {
                     renderPage(pageNumIsPending);
                     pageNumIsPending = null;
@@ -172,47 +219,6 @@
         pageNum--;
         renderPage(pageNum);
     });
-</script>
-
-<h1>Dados do usuário</h1>
-<div id="data-container"></div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-  // Configuração do Firebase (substitua pelos seus dados)
-  const firebaseConfig = {
-    apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-    authDomain: "livro-coletivo.firebaseapp.com",
-    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-    projectId: "livro-coletivo",
-    storageBucket: "livro-coletivo.firebasestorage.app",
-    messagingSenderId: "658238715653",
-    appId: "1:658238715653:web:58d513d162940ff61de96c"
-  };
-
-  // Inicializar Firebase
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
-
-  // Referência para a chave 'usuarios/1' no Firebase
-  const dbRef = ref(database, 'usuarios/1');
-
-  // Lendo os dados
-  get(dbRef).then((snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();  // Pega os dados do usuário "1"
-
-      // Exibe os dados de nome e idade
-      const container = document.getElementById("data-container");
-      container.innerHTML = `Nome: ${data.nome}, Idade: ${data.idade}`;
-    } else {
-      console.log("Nenhum dado encontrado!");
-    }
-  }).catch((error) => {
-    console.error("Erro ao ler os dados:", error);
-  });
 </script>
 
 </body>
