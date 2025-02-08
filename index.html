@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ler Ebooks</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -27,6 +28,21 @@
             padding: 2rem;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Novo banner de vídeo */
+        .video-banner {
+            display: block;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-banner video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .container {
@@ -131,6 +147,19 @@
             padding: 20px;
         }
 
+        /* Estilo para o Instagram */
+        .instagram-link {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+
+        .instagram-link:hover {
+            color: #E1306C;
+        }
+
         @media (max-width: 768px) {
             .container {
                 width: 100%;
@@ -142,6 +171,10 @@
             .pdf-viewer {
                 padding: 5px;
             }
+
+            .video-banner {
+                height: 150px;
+            }
         }
     </style>
 </head>
@@ -149,8 +182,16 @@
 
 <header>
     <h1>LER EBOOKs📖</h1>
-<H3> A sua leitura diária<h3>
+    <h3>A sua leitura diária</h3>
 </header>
+
+<!-- Banner de vídeo adicionado -->
+<a href="https://www.amazon.com.br/stores/Washington-Verdan/author/B09PVND4HD" target="_blank" class="video-banner">
+    <video autoplay muted loop>
+        <source src="anuncio.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos HTML5
+    </video>
+</a>
 
 <div class="container">
     <div class="ebook-list">
@@ -183,9 +224,10 @@
 </div>
 
 <footer>
-
-     
-
+    <!-- Ícone do Instagram adicionado -->
+    <a href="https://www.instagram.com/washingtonverdan/" target="_blank" class="instagram-link">
+        <i class="fab fa-instagram"></i>
+    </a>
     <p>&copy; 2025 Ler eBooks. Todos os direitos reservados.</p>
 </footer>
 
