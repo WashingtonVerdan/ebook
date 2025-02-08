@@ -33,9 +33,8 @@
         .video-banner {
             display: block;
             width: 100%;
-            height: 30vh;
-            min-height: 150px;
-            max-height: 400px;
+            aspect-ratio: 16/9;
+            max-height: 1080px;
             overflow: hidden;
             background: #000;
             position: relative;
@@ -44,7 +43,7 @@
         .video-banner video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .container {
@@ -193,8 +192,7 @@
             }
 
             .video-banner {
-                height: 25vh;
-                min-height: 120px;
+                max-height: 50vh;
             }
 
             .container {
@@ -225,8 +223,7 @@
 
         @media (max-width: 480px) {
             .video-banner {
-                height: 20vh;
-                min-height: 100px;
+                max-height: 40vh;
             }
 
             .ebook-list {
@@ -256,7 +253,7 @@
 </header>
 
 <a href="https://www.amazon.com.br/stores/Washington-Verdan/author/B09PVND4HD" target="_blank" class="video-banner">
-    <video autoplay muted loop>
+    <video autoplay muted loop playsinline webkit-playsinline>
         <source src="anuncio.mp4" type="video/mp4">
         Seu navegador não suporta vídeos HTML5
     </video>
@@ -297,7 +294,7 @@
         <a href="https://www.instagram.com/washingtonverdan/" target="_blank" class="instagram">
             <i class="fab fa-instagram"></i>
         </a>
-        <a href="https://wa.me/5527997566512?text=" target="_blank" class="whatsapp">
+        <a href="https://wa.me/5527997566512" target="_blank" class="whatsapp">
             <i class="fab fa-whatsapp"></i>
         </a>
     </div>
