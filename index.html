@@ -6,102 +6,134 @@
     <title>Leitor de eBooks</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --text-color: #ecf0f1;
+        }
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         header {
-            background-color: #333;
-            color: #fff;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 1.5rem;
             text-align: center;
-            padding: 1rem;
-            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .container {
+            flex: 1;
             max-width: 1200px;
-            width: 100%;
+            width: 95%;
+            margin: 20px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: white;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .ebook-list {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .ebook-list select, .ebook-list button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .ebook-list button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .ebook-list button:hover {
+            background-color: var(--secondary-color);
         }
 
         .pdf-viewer {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        canvas {
-            border: 1px solid #ddd;
+            overflow-x: auto;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
         }
 
         .controls {
             display: flex;
             justify-content: center;
-            margin-top: 10px;
+            gap: 10px;
+            margin: 20px 0;
         }
 
         .controls button {
-            background-color: #333;
-            color: #fff;
+            padding: 10px 25px;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
             border-radius: 5px;
-            font-size: 16px;
+            cursor: pointer;
             transition: background-color 0.3s;
         }
 
         .controls button:hover {
-            background-color: #555;
+            background-color: var(--secondary-color);
         }
 
-        footer {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .ebook-list {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .ebook-list select {
-            font-size: 16px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        .controls button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
         }
 
         .data-container {
-            margin-top: 20px;
             text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 20px;
         }
 
-        .data-container p {
-            font-size: 18px;
-            font-weight: bold;
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+                margin: 0;
+                padding: 10px;
+            }
+
+            .pdf-viewer {
+                padding: 5px;
+            }
         }
     </style>
 </head>
@@ -113,29 +145,32 @@
 
 <div class="container">
     <div class="ebook-list">
-        <h2>Escolha um eBook</h2>
         <select id="ebook-select">
             <option value="viverderenda.pdf">Viver de Renda</option>
             <option value="ebook2.pdf">Ebook 2</option>
             <option value="ebook3.pdf">Ebook 3</option>
-            <!-- Adicione mais opções de eBooks aqui -->
         </select>
-        <button onclick="carregarEbook()">Carregar eBook</button>
+        <button id="load-ebook">Carregar eBook</button>
+    </div>
+
+    <div class="loading" id="loading">
+        Carregando...
     </div>
 
     <div class="pdf-viewer" id="pdf-viewer">
-        <!-- O PDF será renderizado aqui -->
+        <canvas id="pdf-canvas"></canvas>
     </div>
 
     <div class="controls">
-        <button id="prev-page">Página Anterior</button>
-        <button id="next-page">Próxima Página</button>
+        <button id="prev-page" disabled>Anterior</button>
+        <span id="page-info">Página 1 de 1</span>
+        <button id="next-page" disabled>Próxima</button>
     </div>
 
-    <div class="data-container" id="data-container">
-        <h2>DADOS DO USUÁRIO</h2>
-        <p id="user-name">Carregando nome...</p>
-        <p id="user-age">Carregando idade...</p>
+    <div class="data-container">
+        <h2>Dados do Usuário</h2>
+        <p id="user-name">Nome: Carregando...</p>
+        <p id="user-age">Idade: Carregando...</p>
     </div>
 </div>
 
@@ -144,11 +179,10 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 
-<script>
-    // Sua configuração do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
         authDomain: "livro-coletivo.firebaseapp.com",
@@ -159,119 +193,92 @@
         appId: "1:658238715653:web:58d513d162940ff61de96c"
     };
 
-    // Inicializa o Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const usuarioRef = ref(database, 'usuarios/1');
 
-    // Função para ler os dados do Firebase
-    function lerDadosDoUsuario() {
-        const usuarioRef = database.ref('usuarios/1');
-        usuarioRef.once('value', (snapshot) => {
-            const usuario = snapshot.val();
-            if (usuario) {
-                document.getElementById('user-name').textContent = `Nome: ${usuario.nome}`;
-                document.getElementById('user-age').textContent = `Idade: ${usuario.idade}`;
-            } else {
-                document.getElementById('user-name').textContent = 'Nome: Não encontrado';
-                document.getElementById('user-age').textContent = 'Idade: Não encontrada';
-            }
-        });
-    }
+    // Configuração do PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
 
-    // Carrega os dados ao carregar a página
-    window.onload = function () {
-        lerDadosDoUsuario();
-    };
-
-    // Inicializa o PDF.js
     let pdfDoc = null;
-    let pageNum = 1;
-    let pageIsRendering = false;
-    let pageNumIsPending = null;
-
-    const canvas = document.createElement('canvas');
+    let currentPage = 1;
+    let scale = 1.5;
+    const canvas = document.getElementById('pdf-canvas');
     const ctx = canvas.getContext('2d');
-    document.getElementById('pdf-viewer').appendChild(canvas);
 
-    // Função para carregar o eBook
-    function carregarEbook() {
-        const ebookSelecionado = document.getElementById('ebook-select').value;
-        const url = ebookSelecionado; // O caminho do PDF é o valor selecionado
+    // Elementos da UI
+    const loading = document.getElementById('loading');
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    const pageInfo = document.getElementById('page-info');
 
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdfDoc = pdf;
-            renderPage(pageNum);
-        }).catch(err => {
-            console.error('Erro ao carregar o PDF: ', err);
-            alert('Erro ao carregar o eBook.');
-        });
+    // Funções de controle
+    function updatePageControls() {
+        prevButton.disabled = currentPage <= 1;
+        nextButton.disabled = currentPage >= pdfDoc.numPages;
+        pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
     }
 
-    // Renderiza a página do PDF
-    function renderPage(num) {
-        pageIsRendering = true;
-
-        pdfDoc.getPage(num).then(page => {
-            const scale = 1.5;
+    async function renderPage(pageNum) {
+        try {
+            loading.style.display = 'block';
+            const page = await pdfDoc.getPage(pageNum);
             const viewport = page.getViewport({ scale });
-
-            canvas.width = viewport.width;
+            
             canvas.height = viewport.height;
+            canvas.width = viewport.width;
 
-            page.render({
+            await page.render({
                 canvasContext: ctx,
                 viewport: viewport
-            }).promise.then(() => {
-                pageIsRendering = false;
+            }).promise;
 
-                if (pageNumIsPending !== null) {
-                    renderPage(pageNumIsPending);
-                    pageNumIsPending = null;
-                }
-            });
-        });
+            currentPage = pageNum;
+            updatePageControls();
+        } catch (error) {
+            console.error('Erro ao renderizar página:', error);
+            alert('Erro ao carregar a página');
+        } finally {
+            loading.style.display = 'none';
+        }
     }
 
-    // Navegação entre páginas
-    document.getElementById('next-page').addEventListener('click', () => {
-        if (pageNum >= pdfDoc.numPages) {
-            return;
+    // Event Listeners
+    document.getElementById('load-ebook').addEventListener('click', async () => {
+        try {
+            const ebook = document.getElementById('ebook-select').value;
+            loading.style.display = 'block';
+            pdfDoc = await pdfjsLib.getDocument(ebook).promise;
+            await renderPage(1);
+        } catch (error) {
+            console.error('Erro ao carregar eBook:', error);
+            alert('Erro ao carregar o eBook');
+        } finally {
+            loading.style.display = 'none';
         }
-        pageNum++;
-        renderPage(pageNum);
     });
 
-    document.getElementById('prev-page').addEventListener('click', () => {
-        if (pageNum <= 1) {
-            return;
-        }
-        pageNum--;
-        renderPage(pageNum);
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) renderPage(currentPage - 1);
     });
-</script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-    authDomain: "livro-coletivo.firebaseapp.com",
-    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-    projectId: "livro-coletivo",
-    storageBucket: "livro-coletivo.firebasestorage.app",
-    messagingSenderId: "658238715653",
-    appId: "1:658238715653:web:58d513d162940ff61de96c",
-    measurementId: "G-YDJ85X3DZT"
-  };
+    nextButton.addEventListener('click', () => {
+        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
+    });
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+    // Firebase
+    onValue(usuarioRef, (snapshot) => {
+        const user = snapshot.val();
+        if (user) {
+            document.getElementById('user-name').textContent = `Nome: ${user.nome || 'Não informado'}`;
+            document.getElementById('user-age').textContent = `Idade: ${user.idade || 'Não informada'}`;
+        }
+    });
+
+    // Redimensionamento responsivo
+    window.addEventListener('resize', () => {
+        if (pdfDoc) renderPage(currentPage);
+    });
 </script>
 
 </body>
