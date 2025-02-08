@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leitor de eBooks</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Incluindo o script do epub.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.87/epub.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Escolha um eBook</h1>
-    <ul>
-        <li><a href="ebooks/viverderenda.epub" target="_blank">Viver de Renda</a></li>
-    </ul>
-    <div id="reader"></div>
+    <h1>Leitor de eBooks</h1>
+
+    <div id="viewer" style="height: 600px; width: 100%;"></div>
+
+    <!-- Botões de navegação -->
+    <div id="controls">
+        <button onclick="prevPage()">Página Anterior</button>
+        <button onclick="nextPage()">Próxima Página</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
