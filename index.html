@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leitor de eBooks</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/epubjs/dist/epub.min.js"></script>
 </head>
 <body>
     <h1>Escolha um eBook</h1>
-    <div id="ebook-list"></div>
-    <div id="reader"></div>
+    <select id="ebook-selector">
+        <option value="">Selecione um eBook</option>
+        <option value="ebooks/viverderenda.epub">Livro EPUB</option>
+        <option value="ebooks/liv.pdf">Livro PDF</option>
+    </select>
+    <div id="reader-container">
+        <div id="reader"></div>
+        <iframe id="pdf-reader" style="display: none;" width="100%" height="600px"></iframe>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
-
-    
-
-    
-
-
-
-    
-    
