@@ -1,284 +1,129 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitor de eBooks</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Leitura de eBooks</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --text-color: #ecf0f1;
-        }
-
+        /* Estilos básicos */
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            padding: 0;
         }
-
-        header {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
         .container {
-            flex: 1;
-            max-width: 1200px;
-            width: 95%;
+            width: 80%;
             margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .ebook-list {
-            margin: 20px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .ebook-list select, .ebook-list button {
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        .ebook-list button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .ebook-list button:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .pdf-viewer {
-            width: 100%;
-            overflow-x: auto;
-            margin: 20px 0;
-            background: #f8f9fa;
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .controls button {
-            padding: 10px 25px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .controls button:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .controls button:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-
-        .data-container {
             text-align: center;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            margin-top: 20px;
         }
-
-        footer {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto;
+        #form-container {
+            margin: 20px;
         }
-
-        .loading {
+        #ebook-container {
             display: none;
-            text-align: center;
-            padding: 20px;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                width: 100%;
-                border-radius: 0;
-                margin: 0;
-                padding: 10px;
-            }
-
-            .pdf-viewer {
-                padding: 5px;
-            }
+        #welcome-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #ebook-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Leitor de eBooks</h1>
-</header>
-
 <div class="container">
-    <div class="ebook-list">
-        <select id="ebook-select">
-            <option value="viverderenda.pdf">Viver de Renda</option>
-            <option value="ebook2.pdf">Ebook 2</option>
-            <option value="ebook3.pdf">Ebook 3</option>
-        </select>
-        <button id="load-ebook">Carregar eBook</button>
+    <!-- Formulário de login -->
+    <div id="form-container">
+        <h2>Insira seus dados para começar</h2>
+        <input type="text" id="user-name" placeholder="Digite seu nome" required><br><br>
+        <input type="number" id="user-age" placeholder="Digite sua idade" required><br><br>
+        <button id="submit-user">Entrar</button>
     </div>
 
-    <div class="loading" id="loading">
-        Carregando...
-    </div>
+    <!-- Mensagem de boas-vindas -->
+    <div id="welcome-message"></div>
 
-    <div class="pdf-viewer" id="pdf-viewer">
-        <canvas id="pdf-canvas"></canvas>
-    </div>
-
-    <div class="controls">
-        <button id="prev-page" disabled>Anterior</button>
-        <span id="page-info">Página 1 de 1</span>
-        <button id="next-page" disabled>Próxima</button>
-    </div>
-
-    <div class="data-container">
-        <h2>Dados do Usuário</h2>
-        <p id="user-name">Nome: Carregando...</p>
-        <p id="user-age">Idade: Carregando...</p>
+    <!-- Container do eBook -->
+    <div id="ebook-container">
+        <h3>Escolha o eBook para ler:</h3>
+        <button onclick="window.location.href='ebook1.pdf'">eBook 1</button>
+        <button onclick="window.location.href='ebook2.pdf'">eBook 2</button>
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2025 Leitor de eBooks. Todos os direitos reservados.</p>
-</footer>
+<script>
+// Configuração do Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
+    authDomain: "livro-coletivo.firebaseapp.com",
+    databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
+    projectId: "livro-coletivo",
+    storageBucket: "livro-coletivo.firebasestorage.app",
+    messagingSenderId: "658238715653",
+    appId: "1:658238715653:web:58d513d162940ff61de96c",
+};
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+// Inicializar o Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database(app);
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-        authDomain: "livro-coletivo.firebaseapp.com",
-        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-        projectId: "livro-coletivo",
-        storageBucket: "livro-coletivo.firebasestorage.app",
-        messagingSenderId: "658238715653",
-        appId: "1:658238715653:web:58d513d162940ff61de96c"
-    };
+// Função para salvar os dados do usuário no Firebase
+document.getElementById('submit-user').addEventListener('click', () => {
+    const name = document.getElementById('user-name').value;
+    const age = document.getElementById('user-age').value;
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const usuarioRef = ref(database, 'usuarios/1');
+    if (name && age) {
+        // Exibir a mensagem de boas-vindas e esconder o formulário
+        document.getElementById('welcome-message').textContent = `Bem-vindo, ${name}! Você tem ${age} anos.`;
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('ebook-container').style.display = 'block';
 
-    // Configuração do PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
-
-    let pdfDoc = null;
-    let currentPage = 1;
-    let scale = 1.5;
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Elementos da UI
-    const loading = document.getElementById('loading');
-    const prevButton = document.getElementById('prev-page');
-    const nextButton = document.getElementById('next-page');
-    const pageInfo = document.getElementById('page-info');
-
-    // Funções de controle
-    function updatePageControls() {
-        prevButton.disabled = currentPage <= 1;
-        nextButton.disabled = currentPage >= pdfDoc.numPages;
-        pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
+        // Enviar os dados para o Firebase Realtime Database
+        const userId = Date.now(); // Usando timestamp como ID único (pode ser modificado)
+        firebase.database().ref('users/' + userId).set({
+            name: name,
+            age: age,
+        })
+        .then(() => {
+            console.log("Dados salvos com sucesso!");
+        })
+        .catch((error) => {
+            console.error("Erro ao salvar os dados:", error);
+        });
+    } else {
+        alert('Por favor, preencha todos os campos.');
     }
+});
 
-    async function renderPage(pageNum) {
-        try {
-            loading.style.display = 'block';
-            const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale });
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            await page.render({
-                canvasContext: ctx,
-                viewport: viewport
-            }).promise;
-
-            currentPage = pageNum;
-            updatePageControls();
-        } catch (error) {
-            console.error('Erro ao renderizar página:', error);
-            alert('Erro ao carregar a página');
-        } finally {
-            loading.style.display = 'none';
+// Função para carregar dados do usuário se ele já tiver dados salvos no Firebase
+function loadUserData(userId) {
+    const userRef = firebase.database().ref('users/' + userId);
+    userRef.get().then((snapshot) => {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
+            document.getElementById('welcome-message').textContent = `Bem-vindo de volta, ${userData.name}! Você tem ${userData.age} anos.`;
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('ebook-container').style.display = 'block';
+        } else {
+            console.log("Usuário não encontrado!");
         }
-    }
-
-    // Event Listeners
-    document.getElementById('load-ebook').addEventListener('click', async () => {
-        try {
-            const ebook = document.getElementById('ebook-select').value;
-            loading.style.display = 'block';
-            pdfDoc = await pdfjsLib.getDocument(ebook).promise;
-            await renderPage(1);
-        } catch (error) {
-            console.error('Erro ao carregar eBook:', error);
-            alert('Erro ao carregar o eBook');
-        } finally {
-            loading.style.display = 'none';
-        }
+    }).catch((error) => {
+        console.error("Erro ao carregar os dados:", error);
     });
+}
 
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) renderPage(currentPage - 1);
-    });
-
-    nextButton.addEventListener('click', () => {
-        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
-    });
-
-    // Firebase
-    onValue(usuarioRef, (snapshot) => {
-        const user = snapshot.val();
-        if (user) {
-            document.getElementById('user-name').textContent = `Nome: ${user.nome || 'Não informado'}`;
-            document.getElementById('user-age').textContent = `Idade: ${user.idade || 'Não informada'}`;
-        }
-    });
-
-    // Redimensionamento responsivo
-    window.addEventListener('resize', () => {
-        if (pdfDoc) renderPage(currentPage);
-    });
+// Chame essa função para carregar os dados do usuário se necessário
+// loadUserData('ID_DO_USUARIO');
 </script>
 
 </body>
