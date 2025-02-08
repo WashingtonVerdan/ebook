@@ -131,7 +131,7 @@
         authDomain: "livro-coletivo.firebaseapp.com",
         databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
         projectId: "livro-coletivo",
-        storageBucket: "livro-coletivo.firebasestorage.app",
+        storageBucket: "livro-coletivo.appspot.com",
         messagingSenderId: "658238715653",
         appId: "1:658238715653:web:58d513d162940ff61de96c"
     };
@@ -149,17 +149,19 @@
                 document.getElementById('user-name').textContent = `Nome: ${usuario.nome}`;
                 document.getElementById('user-age').textContent = `Idade: ${usuario.idade}`;
             } else {
-                console.log("Dados do usuário não encontrados.");
+                document.getElementById('user-name').textContent = 'Nome: Não encontrado';
+                document.getElementById('user-age').textContent = 'Idade: Não encontrada';
             }
         });
     }
 
     // Carrega os dados ao carregar a página
-    lerDadosDoUsuario();
+    window.onload = function () {
+        lerDadosDoUsuario();
+        carregarEbook();
+    };
 
     // Inicializa o PDF.js
-    const url = 'viverderenda.pdf';  // Substitua pelo nome correto do seu PDF ou caminho.
-
     let pdfDoc = null;
     let pageNum = 1;
     let pageIsRendering = false;
@@ -169,15 +171,20 @@
     const ctx = canvas.getContext('2d');
     document.getElementById('pdf-viewer').appendChild(canvas);
 
-    // Carrega o PDF
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-        pdfDoc = pdf;
-        renderPage(pageNum);
-    }).catch(err => {
-        console.error('Erro ao carregar o PDF: ', err);
-    });
+    // Função para carregar o eBook
+    function carregarEbook() {
+        const url = 'viverderenda.pdf';  // Substitua pelo caminho correto do seu PDF
 
-    // Renderiza a página
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdfDoc = pdf;
+            renderPage(pageNum);
+        }).catch(err => {
+            console.error('Erro ao carregar o PDF: ', err);
+            alert('Erro ao carregar o eBook.');
+        });
+    }
+
+    // Renderiza a página do PDF
     function renderPage(num) {
         pageIsRendering = true;
 
@@ -202,7 +209,7 @@
         });
     }
 
-    // Controla a navegação de páginas
+    // Navegação entre páginas
     document.getElementById('next-page').addEventListener('click', () => {
         if (pageNum >= pdfDoc.numPages) {
             return;
