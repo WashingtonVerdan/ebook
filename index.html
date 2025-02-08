@@ -196,22 +196,7 @@
       z-index: 999;
     }
 
-    @media (max-width: 768px) {
-      .ebook-controls {
-        grid-template-columns: 1fr;
-      }
-
-      .controls button {
-        padding: 10px 15px;
-        min-width: auto;
-      }
-
-      #page-info {
-        order: -1;
-        width: 100%;
-      }
-    }
-footer {
+    footer {
       background-color: var(--primary-color);
       color: var(--text-color);
       text-align: center;
@@ -258,6 +243,20 @@ footer {
     }
 
     @media (max-width: 768px) {
+      .ebook-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .controls button {
+        padding: 10px 15px;
+        min-width: auto;
+      }
+
+      #page-info {
+        order: -1;
+        width: 100%;
+      }
+
       .social-links a {
         font-size: 1rem;
         padding: 6px 12px;
@@ -334,7 +333,7 @@ footer {
     </div>
   </div>
 
-      <footer>
+  <footer>
     <div class="social-links">
       <a href="https://www.instagram.com/washingtonverdan/" target="_blank" class="instagram">
         <i class="fab fa-instagram"></i>
@@ -343,7 +342,6 @@ footer {
     </div>
     <p>&copy; 2025 Ler eBooks. Todos os direitos reservados.</p>
   </footer>
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
   <script>
@@ -356,102 +354,166 @@ footer {
     const ctx = canvas.getContext('2d');
     const loading = document.getElementById('loading');
     const stateKey = 'ebookReaderState';
+    const dbName = 'EbookCache';
+    let db;
 
-    // Carregar estado salvo
-    const savedState = JSON.parse(localStorage.getItem(stateKey)) || {};
-    if (savedState.ebook) {
-      document.getElementById('ebook-select').value = savedState.ebook;
-    }
+    // Inicialização do IndexedDB
+    const initDB = () => {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, 1);
 
-    function updatePageControls() {
-      document.getElementById('prev-page').disabled = currentPage <= 1;
-      document.getElementById('next-page').disabled = currentPage >= pdfDoc.numPages;
-      document.getElementById('page-info').textContent = 
-        `Página ${currentPage} de ${pdfDoc.numPages}`;
-      
-      // Salvar estado
-      localStorage.setItem(stateKey, JSON.stringify({
-        ebook: document.getElementById('ebook-select').value,
-        page: currentPage,
-        scale: scale
-      }));
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains('pdfs')) {
+                    db.createObjectStore('pdfs');
+                }
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                resolve(db);
+            };
+
+            request.onerror = (event) => {
+                reject(event.target.error);
+            };
+        });
+    };
+
+    // Gerenciamento de cache
+    const getCachedPDF = async (url) => {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pdfs'], 'readonly');
+            const store = transaction.objectStore('pdfs');
+            const request = store.get(url);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    };
+
+    const cachePDF = async (url, data) => {
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pdfs'], 'readwrite');
+            const store = transaction.objectStore('pdfs');
+            const request = store.put(data, url);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    };
+
+    // Carregamento otimizado de PDF
+    async function loadPDF(url) {
+        try {
+            const cachedData = await getCachedPDF(url);
+            if (cachedData) {
+                return pdfjsLib.getDocument({ data: cachedData }).promise;
+            }
+
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            await cachePDF(url, arrayBuffer);
+            return pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        } catch (error) {
+            throw new Error('Falha ao carregar o PDF');
+        }
     }
 
     async function renderPage(pageNum) {
-      try {
-        loading.style.display = 'flex';
-        const page = await pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport({ scale });
-        
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        try {
+            loading.style.display = 'flex';
+            const page = await pdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale });
+            
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-        await page.render({
-          canvasContext: ctx,
-          viewport,
-          intent: 'display'
-        }).promise;
+            await page.render({
+                canvasContext: ctx,
+                viewport,
+                intent: 'display'
+            }).promise;
 
-        currentPage = pageNum;
-        updatePageControls();
-      } catch (error) {
-        showError('Erro ao carregar a página. Tente recarregar o eBook.');
-      } finally {
-        loading.style.display = 'none';
-      }
+            currentPage = pageNum;
+            updatePageControls();
+        } catch (error) {
+            showError('Erro ao carregar a página. Tente recarregar o eBook.');
+        } finally {
+            loading.style.display = 'none';
+        }
     }
 
     async function loadEbook() {
-      try {
-        const ebook = document.getElementById('ebook-select').value;
-        loading.style.display = 'flex';
+        try {
+            const ebook = document.getElementById('ebook-select').value;
+            loading.style.display = 'flex';
+            
+            if (pdfDoc) {
+                await pdfDoc.destroy();
+            }
+
+            if (!db) await initDB();
+            pdfDoc = await loadPDF(ebook);
+
+            const savedState = JSON.parse(localStorage.getItem(stateKey)) || {};
+            if (savedState.ebook === ebook) {
+                currentPage = savedState.page || 1;
+                scale = savedState.scale || 1.5;
+            } else {
+                currentPage = 1;
+                scale = 1.5;
+            }
+
+            // Pré-carregamento de páginas
+            const preloadPages = async () => {
+                const pagesToPreload = [currentPage, currentPage + 1];
+                for (const pageNum of pagesToPreload) {
+                    if (pageNum > 0 && pageNum <= pdfDoc.numPages) {
+                        const page = await pdfDoc.getPage(pageNum);
+                        await page.getTextContent();
+                    }
+                }
+            };
+
+            await Promise.all([renderPage(currentPage), preloadPages()]);
+        } catch (error) {
+            showError(error.message || 'Erro ao carregar o eBook');
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    function updatePageControls() {
+        document.getElementById('prev-page').disabled = currentPage <= 1;
+        document.getElementById('next-page').disabled = currentPage >= pdfDoc.numPages;
+        document.getElementById('page-info').textContent = 
+            `Página ${currentPage} de ${pdfDoc.numPages}`;
         
-        if (pdfDoc) {
-          pdfDoc.destroy();
-        }
-
-        pdfDoc = await pdfjsLib.getDocument({
-          url: ebook,
-          cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.8.335/cmaps/',
-          cMapPacked: true
-        }).promise;
-
-        // Restaurar estado
-        if (savedState.ebook === ebook) {
-          currentPage = savedState.page || 1;
-          scale = savedState.scale || 1.5;
-        } else {
-          currentPage = 1;
-          scale = 1.5;
-        }
-
-        await renderPage(currentPage);
-      } catch (error) {
-        showError('Erro ao carregar o eBook. Verifique o arquivo.');
-      } finally {
-        loading.style.display = 'none';
-      }
+        localStorage.setItem(stateKey, JSON.stringify({
+            ebook: document.getElementById('ebook-select').value,
+            page: currentPage,
+            scale: scale
+        }));
     }
 
     function showError(message) {
-      const alert = document.createElement('div');
-      alert.style = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        background: #e74c3c;
-        color: white;
-        border-radius: 5px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        z-index: 1001;
-      `;
-      alert.textContent = message;
-      document.body.appendChild(alert);
-      
-      setTimeout(() => {
-        alert.remove();
-      }, 5000);
+        const alert = document.createElement('div');
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            z-index: 1001;
+        `;
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => alert.remove(), 5000);
     }
 
     // Event Listeners
@@ -460,37 +522,40 @@ footer {
     document.getElementById('next-page').addEventListener('click', () => renderPage(currentPage + 1));
     
     document.getElementById('zoom-in').addEventListener('click', () => {
-      scale *= 1.2;
-      renderPage(currentPage);
+        scale *= 1.2;
+        renderPage(currentPage);
     });
 
     document.getElementById('zoom-out').addEventListener('click', () => {
-      scale = Math.max(0.5, scale * 0.8);
-      renderPage(currentPage);
+        scale = Math.max(0.5, scale * 0.8);
+        renderPage(currentPage);
     });
 
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        document.exitFullscreen();
-      }
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
     });
 
-    // Navegação por teclado
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' && currentPage > 1) {
-        renderPage(currentPage - 1);
-      } else if (e.key === 'ArrowRight' && currentPage < pdfDoc?.numPages) {
-        renderPage(currentPage + 1);
-      }
+        if (e.key === 'ArrowLeft' && currentPage > 1) {
+            renderPage(currentPage - 1);
+        } else if (e.key === 'ArrowRight' && currentPage < pdfDoc?.numPages) {
+            renderPage(currentPage + 1);
+        }
     });
 
-    // Carregar eBook automaticamente se houver estado salvo
-    if (savedState.ebook) {
-      setTimeout(loadEbook, 500);
-    }
+    // Inicialização automática
+    (async () => {
+        await initDB();
+        const savedState = JSON.parse(localStorage.getItem(stateKey));
+        if (savedState?.ebook) {
+            document.getElementById('ebook-select').value = savedState.ebook;
+            setTimeout(loadEbook, 300);
+        }
+    })();
   </script>
-
 </body>
 </html>
