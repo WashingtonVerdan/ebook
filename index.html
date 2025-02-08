@@ -2,124 +2,284 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>EbookFlix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de eBooks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --text-color: #ecf0f1;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .livro {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px;
-            width: 200px;
-            display: inline-block;
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 1.5rem;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .leitor {
-            width: 80%;
-            margin: 0 auto;
+
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            width: 95%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .ebook-list {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .ebook-list select, .ebook-list button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .ebook-list button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .ebook-list button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .pdf-viewer {
+            width: 100%;
+            overflow-x: auto;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .controls button {
+            padding: 10px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .controls button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .data-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
             padding: 20px;
         }
-        #pagina {
-            font-size: 1.2em;
-            line-height: 1.6;
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+                margin: 0;
+                padding: 10px;
+            }
+
+            .pdf-viewer {
+                padding: 5px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Biblioteca EbookFlix</h1>
-    
-    <!-- Seção de Livros -->
-    <div id="biblioteca">
-        <div class="viverderenda.pdf" onclick="selecionarLivro(1)">
-            <img src="viverderenda.jpg" alt="Livro 1" width="100">
-            <h3>Dom Casmurro</h3>
-            <button>Ler Agora</button>
-        </div>
-        
-        <div class="livro" onclick="selecionarLivro(2)">
-            <img src="capa2.jpg" alt="Livro 2" width="100">
-            <h3>Memórias Póstumas</h3>
-            <button>Comprar</button>
-        </div>
+
+<header>
+    <h1>Leitor de eBooks</h1>
+</header>
+
+<div class="container">
+    <div class="ebook-list">
+        <select id="ebook-select">
+            <option value="viverderenda.pdf">Viver de Renda</option>
+            <option value="ebook2.pdf">Ebook 2</option>
+            <option value="ebook3.pdf">Ebook 3</option>
+        </select>
+        <button id="load-ebook">Carregar eBook</button>
     </div>
 
-    <!-- Leitor Digital -->
-    <div id="leitor" style="display: none;">
-        <button onclick="fecharLeitor()">Voltar</button>
-        <div id="pagina"></div>
-        <button onclick="virarPagina()">Próxima Página</button>
+    <div class="loading" id="loading">
+        Carregando...
     </div>
 
-    <!-- Integração Banese (Simulação) -->
-    <div id="pagamento" style="display: none;">
-        <h2>Finalizar Compra</h2>
-        <form id="formBanese">
-            <input type="text" placeholder="Número do Cartão" required>
-            <input type="month" placeholder="Validade" required>
-            <input type="text" placeholder="CVV" required>
-            <button type="button" onclick="finalizarPagamento()">Pagar</button>
-        </form>
+    <div class="pdf-viewer" id="pdf-viewer">
+        <canvas id="pdf-canvas"></canvas>
     </div>
 
-    <script>
-        const livros = {
-            1: {
-                titulo: "Dom Casmurro",
-                conteudo: ["Página 1...", "Página 2...", "Página 3..."],
-                gratuito: true
-            },
-            2: {
-                titulo: "Memórias Póstumas",
-                conteudo: ["Página 1...", "Página 2...", "Página 3..."],
-                gratuito: false
-            }
-        };
+    <div class="controls">
+        <button id="prev-page" disabled>Anterior</button>
+        <span id="page-info">Página 1 de 1</span>
+        <button id="next-page" disabled>Próxima</button>
+    </div>
 
-        let livroAtual = null;
-        let paginaAtual = 0;
+    <div class="data-container">
+        <h2>Dados do Usuário</h2>
+        <p id="user-name">Nome: Carregando...</p>
+        <p id="user-age">Idade: Carregando...</p>
+    </div>
+</div>
 
-        function selecionarLivro(id) {
-            const livro = livros[id];
-            if(!livro.gratuito) {
-                document.getElementById('pagamento').style.display = 'block';
-                return;
-            }
-            abrirLeitor(id);
+<footer>
+    <p>&copy; 2025 Leitor de eBooks. Todos os direitos reservados.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
+        authDomain: "livro-coletivo.firebaseapp.com",
+        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
+        projectId: "livro-coletivo",
+        storageBucket: "livro-coletivo.appspot.com",
+        messagingSenderId: "658238715653",
+        appId: "1:658238715653:web:58d513d162940ff61de96c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const usuarioRef = ref(database, 'usuarios/1');
+
+    // Configuração do PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
+
+    let pdfDoc = null;
+    let currentPage = 1;
+    let scale = 1.5;
+    const canvas = document.getElementById('pdf-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Elementos da UI
+    const loading = document.getElementById('loading');
+    const prevButton = document.getElementById('prev-page');
+    const nextButton = document.getElementById('next-page');
+    const pageInfo = document.getElementById('page-info');
+
+    // Funções de controle
+    function updatePageControls() {
+        prevButton.disabled = currentPage <= 1;
+        nextButton.disabled = currentPage >= pdfDoc.numPages;
+        pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
+    }
+
+    async function renderPage(pageNum) {
+        try {
+            loading.style.display = 'block';
+            const page = await pdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale });
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise;
+
+            currentPage = pageNum;
+            updatePageControls();
+        } catch (error) {
+            console.error('Erro ao renderizar página:', error);
+            alert('Erro ao carregar a página');
+        } finally {
+            loading.style.display = 'none';
         }
+    }
 
-        function abrirLeitor(id) {
-            livroAtual = livros[id];
-            paginaAtual = 0;
-            document.getElementById('biblioteca').style.display = 'none';
-            document.getElementById('leitor').style.display = 'block';
-            atualizarPagina();
+    // Event Listeners
+    document.getElementById('load-ebook').addEventListener('click', async () => {
+        try {
+            const ebook = document.getElementById('ebook-select').value;
+            loading.style.display = 'block';
+            pdfDoc = await pdfjsLib.getDocument(ebook).promise;
+            await renderPage(1);
+        } catch (error) {
+            console.error('Erro ao carregar eBook:', error);
+            alert('Erro ao carregar o eBook');
+        } finally {
+            loading.style.display = 'none';
         }
+    });
 
-        function fecharLeitor() {
-            document.getElementById('leitor').style.display = 'none';
-            document.getElementById('biblioteca').style.display = 'block';
-        }
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) renderPage(currentPage - 1);
+    });
 
-        function virarPagina() {
-            if(paginaAtual < livroAtual.conteudo.length - 1) {
-                paginaAtual++;
-                atualizarPagina();
-            }
-        }
+    nextButton.addEventListener('click', () => {
+        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
+    });
 
-        function atualizarPagina() {
-            document.getElementById('pagina').innerHTML = livroAtual.conteudo[paginaAtual];
+    // Firebase
+    onValue(usuarioRef, (snapshot) => {
+        const user = snapshot.val();
+        if (user) {
+            document.getElementById('user-name').textContent = `Nome: ${user.nome || 'Não informado'}`;
+            document.getElementById('user-age').textContent = `Idade: ${user.idade || 'Não informada'}`;
         }
+    });
 
-        function finalizarPagamento() {
-            // Simulação de integração com Banese
-            alert("Pagamento processado com sucesso!");
-            document.getElementById('pagamento').style.display = 'none';
-            abrirLeitor(2);
-        }
-    </script>
+    // Redimensionamento responsivo
+    window.addEventListener('resize', () => {
+        if (pdfDoc) renderPage(currentPage);
+    });
+</script>
+
 </body>
 </html>
