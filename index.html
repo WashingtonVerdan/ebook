@@ -1,158 +1,125 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leitura de eBooks</title>
+    <title>EbookFlix</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             margin: 0;
             padding: 20px;
+        }
+        .livro {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            display: inline-block;
             text-align: center;
         }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .hidden {
-            display: none;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .leitor {
             width: 80%;
-            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        button {
-            background-color: #007BFF;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #welcome-message {
-            color: #28a745;
+        #pagina {
             font-size: 1.2em;
-            margin: 20px 0;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
+    <h1>Biblioteca EbookFlix</h1>
+    
+    <!-- Seção de Livros -->
+    <div id="biblioteca">
+        <div class="viverderenda.pdf" onclick="selecionarLivro(1)">
+            <img src="viverderenda.jpg" alt="Livro 1" width="100">
+            <h3>Dom Casmurro</h3>
+            <button>Ler Agora</button>
+        </div>
+        
+        <div class="livro" onclick="selecionarLivro(2)">
+            <img src="capa2.jpg" alt="Livro 2" width="100">
+            <h3>Memórias Póstumas</h3>
+            <button>Comprar</button>
+        </div>
+    </div>
 
-<div class="container">
-    <!-- Mensagem de boas-vindas -->
-    <div id="welcome-message" class="hidden"></div>
+    <!-- Leitor Digital -->
+    <div id="leitor" style="display: none;">
+        <button onclick="fecharLeitor()">Voltar</button>
+        <div id="pagina"></div>
+        <button onclick="virarPagina()">Próxima Página</button>
+    </div>
 
-    <!-- Formulário de login -->
-    <div id="form-container" class="hidden">
-        <h2>Insira seus dados para continuar</h2>
-        <form id="login-form">
-            <input type="text" id="user-name" placeholder="Digite seu nome" required>
-            <input type="number" id="user-age" placeholder="Digite sua idade" required>
-            <button type="submit">Entrar</button>
+    <!-- Integração Banese (Simulação) -->
+    <div id="pagamento" style="display: none;">
+        <h2>Finalizar Compra</h2>
+        <form id="formBanese">
+            <input type="text" placeholder="Número do Cartão" required>
+            <input type="month" placeholder="Validade" required>
+            <input type="text" placeholder="CVV" required>
+            <button type="button" onclick="finalizarPagamento()">Pagar</button>
         </form>
     </div>
 
-    <!-- Container do eBook -->
-    <div id="ebook-container" class="hidden">
-        <h3>Escolha o eBook para ler:</h3>
-        <button onclick="openEbook('viverderenda.pdf')">Viver de Renda</button>
-        <button onclick="openEbook('ebook2.pdf')">eBook 2</button>
-        <button onclick="logout()" style="background-color: #dc3545; margin-top: 20px;">Sair</button>
-    </div>
+    <script>
+        const livros = {
+            1: {
+                titulo: "Dom Casmurro",
+                conteudo: ["Página 1...", "Página 2...", "Página 3..."],
+                gratuito: true
+            },
+            2: {
+                titulo: "Memórias Póstumas",
+                conteudo: ["Página 1...", "Página 2...", "Página 3..."],
+                gratuito: false
+            }
+        };
 
-    <!-- Botão inicial -->
-    <div id="initial-screen">
-        <h3>Bem-vindo à plataforma de leitura!</h3>
-        <button onclick="showForm()">Começar</button>
-    </div>
-</div>
+        let livroAtual = null;
+        let paginaAtual = 0;
 
-<script>
-// Elementos da UI
-const uiElements = {
-    initial: document.getElementById('initial-screen'),
-    form: document.getElementById('form-container'),
-    ebook: document.getElementById('ebook-container'),
-    welcome: document.getElementById('welcome-message')
-};
+        function selecionarLivro(id) {
+            const livro = livros[id];
+            if(!livro.gratuito) {
+                document.getElementById('pagamento').style.display = 'block';
+                return;
+            }
+            abrirLeitor(id);
+        }
 
-// Funções de controle de UI
-function showElement(element) {
-    Object.values(uiElements).forEach(el => el.classList.add('hidden'));
-    element.classList.remove('hidden');
-}
+        function abrirLeitor(id) {
+            livroAtual = livros[id];
+            paginaAtual = 0;
+            document.getElementById('biblioteca').style.display = 'none';
+            document.getElementById('leitor').style.display = 'block';
+            atualizarPagina();
+        }
 
-// Formulário de login
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const name = document.getElementById('user-name').value.trim();
-    const age = document.getElementById('user-age').value.trim();
+        function fecharLeitor() {
+            document.getElementById('leitor').style.display = 'none';
+            document.getElementById('biblioteca').style.display = 'block';
+        }
 
-    if (!name || !age) {
-        alert('Por favor, preencha todos os campos.');
-        return;
-    }
+        function virarPagina() {
+            if(paginaAtual < livroAtual.conteudo.length - 1) {
+                paginaAtual++;
+                atualizarPagina();
+            }
+        }
 
-    // Salvar dados no localStorage
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userAge', age);
-    
-    uiElements.welcome.textContent = `Bem-vindo, ${name}! Você tem ${age} anos.`;
-    showElement(uiElements.ebook);
-    uiElements.welcome.classList.remove('hidden');
-});
+        function atualizarPagina() {
+            document.getElementById('pagina').innerHTML = livroAtual.conteudo[paginaAtual];
+        }
 
-// Acesso ao eBook
-function openEbook(ebookUrl) {
-    const userName = localStorage.getItem('userName');
-    if (!userName) {
-        alert("Você precisa fazer login primeiro.");
-        showElement(uiElements.form);
-        return;
-    }
-    window.open(ebookUrl, '_blank');
-}
-
-// Logout
-function logout() {
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userAge');
-    showElement(uiElements.initial);
-}
-
-// Verificar usuário ao carregar
-function checkUser() {
-    const userName = localStorage.getItem('userName');
-    const userAge = localStorage.getItem('userAge');
-
-    if (userName && userAge) {
-        uiElements.welcome.textContent = `Bem-vindo de volta, ${userName}!`;
-        showElement(uiElements.ebook);
-        uiElements.welcome.classList.remove('hidden');
-    } else {
-        showElement(uiElements.initial);
-    }
-}
-
-// Inicialização
-function showForm() {
-    showElement(uiElements.form);
-}
-
-// Iniciar aplicação
-checkUser();
-</script>
+        function finalizarPagamento() {
+            // Simulação de integração com Banese
+            alert("Pagamento processado com sucesso!");
+            document.getElementById('pagamento').style.display = 'none';
+            abrirLeitor(2);
+        }
+    </script>
 </body>
 </html>
