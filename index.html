@@ -167,35 +167,14 @@
         <button id="next-page" disabled>Próxima</button>
     </div>
 
-    <div class="data-container">
-        <h2>Dados do Usuário</h2>
-        <p id="user-name">Nome: Carregando...</p>
-        <p id="user-age">Idade: Carregando...</p>
-    </div>
+    
 </div>
 
 <footer>
     <p>&copy; 2025 Leitor de eBooks. Todos os direitos reservados.</p>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-        authDomain: "livro-coletivo.firebaseapp.com",
-        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-        projectId: "livro-coletivo",
-        storageBucket: "livro-coletivo.appspot.com",
-        messagingSenderId: "658238715653",
-        appId: "1:658238715653:web:58d513d162940ff61de96c"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const usuarioRef = ref(database, 'usuarios/1');
 
     // Configuração do PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
@@ -266,14 +245,7 @@
         if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
     });
 
-    // Firebase
-    onValue(usuarioRef, (snapshot) => {
-        const user = snapshot.val();
-        if (user) {
-            document.getElementById('user-name').textContent = `Nome: ${user.nome || 'Não informado'}`;
-            document.getElementById('user-age').textContent = `Idade: ${user.idade || 'Não informada'}`;
-        }
-    });
+    
 
     // Redimensionamento responsivo
     window.addEventListener('resize', () => {
