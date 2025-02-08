@@ -101,22 +101,6 @@
             cursor: not-allowed;
         }
 
-        .data-container {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-
-        footer {
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto;
-        }
-
         .loading {
             display: none;
             text-align: center;
@@ -166,12 +150,6 @@
         <span id="page-info">Página 1 de 1</span>
         <button id="next-page" disabled>Próxima</button>
     </div>
-
-    <div class="data-container">
-        <h2>Dados do Usuário</h2>
-        <p id="user-name">Nome: Carregando...</p>
-        <p id="user-age">Idade: Carregando...</p>
-    </div>
 </div>
 
 <footer>
@@ -179,24 +157,7 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyCcBpK8gyBauMhjr2jLL-PMOFPtEOzjUi8",
-        authDomain: "livro-coletivo.firebaseapp.com",
-        databaseURL: "https://livro-coletivo-default-rtdb.firebaseio.com",
-        projectId: "livro-coletivo",
-        storageBucket: "livro-coletivo.appspot.com",
-        messagingSenderId: "658238715653",
-        appId: "1:658238715653:web:58d513d162940ff61de96c"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const usuarioRef = ref(database, 'usuarios/1');
-
+<script>
     // Configuração do PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
 
@@ -212,13 +173,14 @@
     const nextButton = document.getElementById('next-page');
     const pageInfo = document.getElementById('page-info');
 
-    // Funções de controle
+    // Função para atualizar os botões de navegação
     function updatePageControls() {
         prevButton.disabled = currentPage <= 1;
         nextButton.disabled = currentPage >= pdfDoc.numPages;
         pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
     }
 
+    // Função para renderizar uma página
     async function renderPage(pageNum) {
         try {
             loading.style.display = 'block';
@@ -243,7 +205,7 @@
         }
     }
 
-    // Event Listeners
+    // Evento para carregar o eBook selecionado
     document.getElementById('load-ebook').addEventListener('click', async () => {
         try {
             const ebook = document.getElementById('ebook-select').value;
@@ -258,21 +220,13 @@
         }
     });
 
+    // Navegação entre páginas
     prevButton.addEventListener('click', () => {
         if (currentPage > 1) renderPage(currentPage - 1);
     });
 
     nextButton.addEventListener('click', () => {
         if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
-    });
-
-    // Firebase
-    onValue(usuarioRef, (snapshot) => {
-        const user = snapshot.val();
-        if (user) {
-            document.getElementById('user-name').textContent = `Nome: ${user.nome || 'Não informado'}`;
-            document.getElementById('user-age').textContent = `Idade: ${user.idade || 'Não informada'}`;
-        }
     });
 
     // Redimensionamento responsivo
