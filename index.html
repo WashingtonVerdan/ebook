@@ -1,101 +1,73 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eBook Reader</title>
+    <title>Leitor de eBooks</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
-            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         header {
             background-color: #333;
             color: #fff;
+            text-align: center;
             padding: 1rem;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2.5rem;
-        }
-
-        nav {
-            margin-top: 1rem;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            margin: 0 1rem;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem;
-            transition: background-color 0.3s;
-        }
-
-        nav a:hover {
-            background-color: #555;
-        }
-
-        .ebook-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
-        }
-
-        .ebook-card {
-            background-color: #fff;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .ebook-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .ebook-card img {
             width: 100%;
-            height: auto;
-            border-radius: 5px;
         }
 
-        .ebook-card h3 {
-            margin-top: 1rem;
-            font-size: 1.5rem;
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .ebook-card p {
-            font-size: 1rem;
-            color: #777;
-            margin: 0.5rem 0;
+        .pdf-viewer {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 20px;
         }
 
-        .ebook-card a {
-            display: inline-block;
-            margin-top: 1rem;
-            text-decoration: none;
+        canvas {
+            border: 1px solid #ddd;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .controls button {
             background-color: #333;
             color: #fff;
-            padding: 0.5rem 1rem;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
             border-radius: 5px;
+            font-size: 16px;
             transition: background-color 0.3s;
         }
 
-        .ebook-card a:hover {
+        .controls button:hover {
             background-color: #555;
         }
 
@@ -103,107 +75,102 @@
             background-color: #333;
             color: #fff;
             text-align: center;
-            padding: 1rem;
+            padding: 10px;
             position: absolute;
             bottom: 0;
             width: 100%;
-        }
-
-        .pdf-viewer {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 1rem;
-            background-color: #fff;
-        }
-
-        .page-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-        }
-
-        canvas {
-            border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>eBook Reader</h1>
-    <nav>
-        <a href="#home">Home</a>
-        <a href="#ebooks">eBooks</a>
-        <a href="#contact">Contato</a>
-    </nav>
+    <h1>Leitor de eBooks</h1>
 </header>
 
-<section id="ebooks" class="ebook-list">
-    <div class="ebook-card">
-        <img src="viverderenda.jpg" alt="Capa do eBook">
-        <h3>eBook Título 1</h3>
-        <p>Descrição curta sobre o eBook...</p>
-        <a href="viverderenda.pdf">Ler eBook</a>
+<div class="container">
+    <div class="pdf-viewer" id="pdf-viewer">
+        <!-- O PDF será renderizado aqui -->
     </div>
-    <div class="ebook-card">
-        <img src="ebook-thumbnail.jpg" alt="Capa do eBook">
-        <h3>eBook Título 2</h3>
-        <p>Descrição curta sobre o eBook...</p>
-        <a href="view-pdf.html?ebook=2">Ler eBook</a>
+
+    <div class="controls">
+        <button id="prev-page">Página Anterior</button>
+        <button id="next-page">Próxima Página</button>
     </div>
-    <!-- Adicione mais eBooks aqui -->
-</section>
+</div>
 
 <footer>
-    <p>&copy; 2025 eBook Reader. Todos os direitos reservados.</p>
+    <p>&copy; 2025 Leitor de eBooks. Todos os direitos reservados.</p>
 </footer>
 
-<!-- Página para leitura do PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
 <script>
-    const url = 'viverderenda.pdf'; // Modifique conforme a URL do PDF
-    pdfjsLib.getDocument(url).promise.then((pdf) => {
-        const totalPages = pdf.numPages;
-        const pageContainer = document.getElementById('pdf-pages');
+    const url = 'viverderenda.pdf';  // Substitua pela URL do seu PDF (ex: do Google Drive ou servidor)
 
-        function renderPage(pageNum) {
-            pdf.getPage(pageNum).then((page) => {
-                const viewport = page.getViewport({ scale: 1.5 });
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
+    // Inicializa o PDF.js
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+    let pdfDoc = null;
+    let pageNum = 1;
+    let pageIsRendering = false;
+    let pageNumIsPending = null;
 
-                page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise.then(() => {
-                    pageContainer.appendChild(canvas);
-                });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    document.getElementById('pdf-viewer').appendChild(canvas);
+
+    // Carrega o PDF
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+        pdfDoc = pdf;
+        renderPage(pageNum);
+    }).catch(err => {
+        console.error('Erro ao carregar o PDF: ', err);
+    });
+
+    // Renderiza a página
+    function renderPage(num) {
+        pageIsRendering = true;
+
+        // Obtém a página do PDF
+        pdfDoc.getPage(num).then(page => {
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+
+            // Configura o tamanho do canvas para a página
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            // Renderiza a página no canvas
+            page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise.then(() => {
+                pageIsRendering = false;
+
+                // Verifica se há uma página pendente
+                if (pageNumIsPending !== null) {
+                    renderPage(pageNumIsPending);
+                    pageNumIsPending = null;
+                }
             });
-        }
-
-        let currentPage = 1;
-        const pagesPerRow = 2; // Exibe 2 páginas por vez
-
-        function loadNextPages() {
-            for (let i = 0; i < pagesPerRow && currentPage <= totalPages; i++) {
-                renderPage(currentPage++);
-            }
-        }
-
-        loadNextPages();
-
-        window.addEventListener('scroll', () => {
-            if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 100) {
-                loadNextPages();
-            }
         });
-    }).catch((error) => {
-        console.error('Erro ao carregar o PDF: ', error);
+    }
+
+    // Controla a navegação de páginas
+    document.getElementById('next-page').addEventListener('click', () => {
+        if (pageNum >= pdfDoc.numPages) {
+            return;
+        }
+        pageNum++;
+        renderPage(pageNum);
+    });
+
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (pageNum <= 1) {
+            return;
+        }
+        pageNum--;
+        renderPage(pageNum);
     });
 </script>
 
