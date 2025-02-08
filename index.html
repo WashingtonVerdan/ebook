@@ -14,6 +14,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
         }
 
@@ -81,6 +82,18 @@
             width: 100%;
         }
 
+        .ebook-list {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .ebook-list select {
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
         .data-container {
             margin-top: 20px;
             text-align: center;
@@ -99,6 +112,17 @@
 </header>
 
 <div class="container">
+    <div class="ebook-list">
+        <h2>Escolha um eBook</h2>
+        <select id="ebook-select">
+            <option value="viverderenda.pdf">Viver de Renda</option>
+            <option value="ebook2.pdf">Ebook 2</option>
+            <option value="ebook3.pdf">Ebook 3</option>
+            <!-- Adicione mais opções de eBooks aqui -->
+        </select>
+        <button onclick="carregarEbook()">Carregar eBook</button>
+    </div>
+
     <div class="pdf-viewer" id="pdf-viewer">
         <!-- O PDF será renderizado aqui -->
     </div>
@@ -108,7 +132,6 @@
         <button id="next-page">Próxima Página</button>
     </div>
 
-    <!-- Exibindo os dados do usuário -->
     <div class="data-container" id="data-container">
         <h2>DADOS DO USUÁRIO</h2>
         <p id="user-name">Carregando nome...</p>
@@ -158,7 +181,6 @@
     // Carrega os dados ao carregar a página
     window.onload = function () {
         lerDadosDoUsuario();
-        carregarEbook();
     };
 
     // Inicializa o PDF.js
@@ -173,7 +195,8 @@
 
     // Função para carregar o eBook
     function carregarEbook() {
-        const url = 'viverderenda.pdf';  // Substitua pelo caminho correto do seu PDF
+        const ebookSelecionado = document.getElementById('ebook-select').value;
+        const url = ebookSelecionado; // O caminho do PDF é o valor selecionado
 
         pdfjsLib.getDocument(url).promise.then(pdf => {
             pdfDoc = pdf;
