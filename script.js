@@ -1,22 +1,35 @@
-document.getElementById("ebook-selector").addEventListener("change", function() {
-    let selectedBook = this.value;
-    let readerDiv = document.getElementById("reader");
-    let pdfReader = document.getElementById("pdf-reader");
+var book;
+var rendition;
 
-    // Se for um EPUB
-    if (selectedBook.endsWith(".epub")) {
-        pdfReader.style.display = "none"; // Esconder leitor de PDF
-        readerDiv.innerHTML = ""; // Limpar conteúdo anterior
-        readerDiv.style.display = "block";
+// Carrega o eBook assim que o script for carregado
+window.onload = function() {
+    loadBook('ebooks/viverderenda.epub');
+};
 
-        let book = ePub(selectedBook);
-        let rendition = book.renderTo("reader", { width: "100%", height: "600px" });
-        rendition.display();
+// Função para carregar o eBook
+function loadBook(filePath) {
+    // Carrega o eBook usando o epub.js
+    book = ePub(filePath);
+
+    // Renderiza o eBook na div com o id "viewer"
+    rendition = book.renderTo("viewer", {
+        width: "100%",
+        height: "100%"
+    });
+
+    // Exibe o conteúdo do eBook
+    rendition.display();
+}
+
+// Funções de navegação
+function prevPage() {
+    if (rendition) {
+        rendition.prev();
     }
-    // Se for um PDF
-    else if (selectedBook.endsWith(".pdf")) {
-        readerDiv.style.display = "none"; // Esconder leitor de EPUB
-        pdfReader.style.display = "block";
-        pdfReader.src = selectedBook;
+}
+
+function nextPage() {
+    if (rendition) {
+        rendition.next();
     }
-});
+}
