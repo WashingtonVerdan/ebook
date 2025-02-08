@@ -5,36 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualizador de PDF</title>
   <style>
-    #pdf-container {
-      width: 100%;
-      height: 100vh;
-      overflow: auto;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
+
+    #viewer {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+      height: 100vh;
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+
+    .page-container {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+
+    canvas {
+      border: 1px solid #ddd;
+    }
+
   </style>
 </head>
 <body>
-  <div id="pdf-container">
-    <canvas id="pdf-canvas"></canvas>
+
+<div id="viewer">
+  <div class="page-container" id="pdf-pages">
+    <!-- As páginas do PDF serão carregadas aqui -->
   </div>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-  <script>
-    const url = 'https://digital.bbm.usp.br/view/?45000018874&bbm/8434#page/14/mode/2up'; // Substitua pelo link do arquivo PDF
-    const canvas = document.getElementById('pdf-canvas');
-    const context = canvas.getContext('2d');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
+<script>
+  const url = 'viverderenda.pdf'; // Substitua pelo link do arquivo PDF
 
-    pdfjsLib.getDocument(url).promise.then((pdf) => {
-      pdf.getPage(1).then((page) => { // Mostra a primeira página
+  pdfjsLib.getDocument(url).promise.then((pdf) => {
+    const totalPages = pdf.numPages;
+    const pageContainer = document.getElementById('pdf-pages');
+
+    // Função para renderizar as páginas do PDF
+    function renderPage(pageNum) {
+      pdf.getPage(pageNum).then((page) => {
         const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
         page.render({
           canvasContext: context,
           viewport: viewport
+        }).promise.then(() => {
+          pageContainer.appendChild(canvas);
         });
       });
+    }
+
+    // Carregar as páginas de 2 em 2 (modo 2up)
+    let currentPage = 1;
+    const pagesPerRow = 2; // Exibe 2 páginas por vez
+
+    function loadNextPages() {
+      for (let i = 0; i < pagesPerRow && currentPage <= totalPages; i++) {
+        renderPage(currentPage++);
+      }
+    }
+
+    loadNextPages(); // Carrega as primeiras duas páginas
+
+    // Exemplo de navegação simples
+    window.addEventListener('scroll', () => {
+      if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 100) {
+        loadNextPages(); // Carrega mais páginas conforme o usuário rola a página
+      }
     });
-  </script>
+  }).catch((error) => {
+    console.error('Erro ao carregar o PDF: ', error);
+  });
+</script>
+
 </body>
 </html>
