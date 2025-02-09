@@ -235,7 +235,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <h1>LER EBOOKs📖</h1>
     <h3>Sua biblioteca digital</h3>
@@ -254,6 +253,7 @@
   <div class="container">
     <div class="ebook-controls">
       <select id="ebook-select">
+        <option value="">Selecione um eBook</option>
         <option value="viverderenda.pdf">📘 Viver de Renda</option>
         <option value="o maior investimento.pdf">📗 O Maior Investimento</option>
         <option value="realidadeabstrata.pdf">📙 Realidade Abstrata</option>
@@ -313,7 +313,7 @@
   <!-- Carrega a biblioteca pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    // Configurar o worker do pdf.js (usa a versão compatível com o pdf.min.js)
+    // Configurar o worker do pdf.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     let pdfDoc = null;
@@ -400,7 +400,7 @@
       }
     }
 
-    // Função para renderizar a página (única definição)
+    // Função para renderizar a página
     async function renderPage(pageNum) {
       if (isRendering) return;
       isRendering = true;
@@ -463,6 +463,10 @@
     async function loadEbook() {
       try {
         const ebook = document.getElementById('ebook-select').value;
+        if (!ebook) {
+          alert("Por favor, selecione um eBook.");
+          return;
+        }
         console.log('Carregando eBook:', ebook);
         // Limpar canvas antes de carregar novo PDF
         ctx.clearRect(0, 0, canvas.width, canvas.height);
