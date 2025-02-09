@@ -408,15 +408,19 @@
 };
 
     const cachePDF = async (url, data) => {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(['pdfs'], 'readwrite');
-            const store = transaction.objectStore('pdfs');
-            const request = store.put(data, url);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['pdfs'], 'readwrite');
+    const store = transaction.objectStore('pdfs');
+    const request = store.put({
+      url,
+      data,
+      timestamp: Date.now()
+    });
 
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
-    };
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+};
 
     // Carregamento otimizado de PDF
     async function loadPDF(url) {
