@@ -308,6 +308,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
 <script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
+<script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
 
     let pdfDoc = null;
@@ -330,12 +332,15 @@
         try {
             loading.style.display = 'block';
             const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale: scale * defaultScale });
+            const viewport = page.getViewport({ scale: scale });
 
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            await page.render({ canvasContext: ctx, viewport }).promise;
+            await page.render({ 
+                canvasContext: ctx, 
+                viewport: viewport 
+            }).promise;
 
             currentPage = pageNum;
             updatePageControls();
@@ -354,18 +359,30 @@
             await renderPage(1);
         } catch (error) {
             console.error('Erro ao carregar eBook:', error);
+            alert('Erro ao carregar eBook. Verifique o console para detalhes.');
         } finally {
             loading.style.display = 'none';
         }
     });
 
-    prevButton.addEventListener('click', () => renderPage(currentPage - 1));
-    nextButton.addEventListener('click', () => renderPage(currentPage + 1));
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 1) renderPage(currentPage - 1);
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
+    });
 
     document.getElementById('zoom-in').addEventListener('click', () => { 
-        scale += 0.2; 
+        scale *= 1.2;
         renderPage(currentPage); 
     });
+
+    document.getElementById('zoom-out').addEventListener('click', () => { 
+        scale /= 1.2;
+        renderPage(currentPage); 
+    });
+</script>
 
     document.getElementById('zoom-out').addEventListener('click', () => { 
         scale = Math.max(0.5, scale - 0.2); 
