@@ -446,6 +446,10 @@
 
     async function loadEbook() {
         try {
+    
+    console.log('Iniciando carga do eBook:', ebook);
+performance.mark('loadStart');
+
             const ebook = document.getElementById('ebook-select').value;
             loading.style.display = 'flex';
             
@@ -485,6 +489,12 @@
                         try {
                             const page = await pdfDoc.getPage(pageNum);
                             await page.getTextContent();
+
+performance.mark('loadEnd');
+performance.measure('Load completo', 'loadStart', 'loadEnd');
+console.log('Tempo de carga:', performance.getEntriesByName('Load completo')[0].duration + 'ms');
+
+
                         } catch (error) {
                             console.error('Erro no pré-carregamento:', error);
                         }
