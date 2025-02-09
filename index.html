@@ -449,8 +449,14 @@
             const ebook = document.getElementById('ebook-select').value;
             loading.style.display = 'flex';
             
+            // Limpar canvas antes de carregar novo PDF
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.width = 0;
+            canvas.height = 0;
+
             if (pdfDoc) {
                 await pdfDoc.destroy();
+                pdfDoc = null;
             }
 
             if (!db) await initDB();
@@ -465,22 +471,61 @@
                 scale = 1.5;
             }
 
-            // Pré-carregamento de páginas
-            const preloadPages = async () => {
-                const pagesToPreload = [currentPage, currentPage + 1];
+            // Forçar atualização imediata dos controles
+            updatePageControls();
+            
+            // Renderização prioritária da página atual
+            await renderPage(currentPage);
+
+            // Pré-carregar páginas em segundo plano
+            setTimeout(async () => {
+                const pagesToPreload = [currentPage + 1];
                 for (const pageNum of pagesToPreload) {
-                    if (pageNum > 0 && pageNum <= pdfDoc.numPages) {
-                        const page = await pdfDoc.getPage(pageNum);
-                        await page.getTextContent();
+                    if (pageNum <= pdfDoc.numPages) {
+                        try {
+                            const page = await pdfDoc.getPage(pageNum);
+                            await page.getTextContent();
+                        } catch (error) {
+                            console.error('Erro no pré-carregamento:', error);
+                        }
                     }
                 }
-            };
+            }, 500);
 
-            await Promise.all([renderPage(currentPage), preloadPages()]);
         } catch (error) {
             showError(error.message || 'Erro ao carregar o eBook');
         } finally {
             loading.style.display = 'none';
+        }
+    }
+
+    async function renderPage(pageNum) {
+        try {
+            if (!pdfDoc) return;
+
+            loading.style.display = 'flex';
+            const page = await pdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale });
+            
+            // Redimensionar canvas suavemente
+            canvas.style.transition = 'all 0.3s ease';
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({
+                canvasContext: ctx,
+                viewport,
+                intent: 'display'
+            }).promise;
+
+            currentPage = pageNum;
+            updatePageControls();
+
+        } catch (error) {
+            showError('Erro ao carregar a página. Tente recarregar o eBook.');
+        } finally {
+            loading.style.display = 'none';
+            canvas.style.transition = '';
         }
     }
 
