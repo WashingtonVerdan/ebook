@@ -424,20 +424,20 @@
 
     // Carregamento otimizado de PDF
     async function loadPDF(url) {
-        try {
-            const cachedData = await getCachedPDF(url);
-            if (cachedData) {
-                return pdfjsLib.getDocument({ data: cachedData }).promise;
-            }
-
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            await cachePDF(url, arrayBuffer);
-            return pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        } catch (error) {
-            throw new Error('Falha ao carregar o PDF');
-        }
+  try {
+    const cachedData = await getCachedPDF(url);
+    if (cachedData) {
+      return pdfjsLib.getDocument(new Uint8Array(cachedData)).promise;
     }
+
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    await cachePDF(url, arrayBuffer);
+    return pdfjsLib.getDocument(new Uint8Array(arrayBuffer)).promise;
+  } catch (error) {
+    throw new Error('Falha ao carregar o PDF: ' + error.message);
+  }
+}
 
     async function renderPage(pageNum) {
         try {
