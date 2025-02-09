@@ -30,20 +30,20 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .video-banner {
-            display: block;
-            width: 100%;
-            aspect-ratio: 16/9; /* Proporção 16:9 para 1280x720 */
-            overflow: hidden;
-            background: #000;
-            position: relative;
-        }
+          .video-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 20px auto;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
 
-        .video-banner video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    .video-banner {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16/9;
+    }
 
         .container {
             flex: 1;
