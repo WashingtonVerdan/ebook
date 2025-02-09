@@ -509,11 +509,9 @@ window.addEventListener('resize', () => {
     async function loadEbook() {
         try {
     
-    console.log('Iniciando carga do eBook:', ebook);
-performance.mark('loadStart');
-
-            const ebook = document.getElementById('ebook-select').value;
-            loading.style.display = 'flex';
+    console.log('Iniciando carga do eBook:', ebook); // ❌ Remover esta linha
+const ebook = document.getElementById('ebook-select').value;
+console.log('Carregando eBook:', ebook); // ✅ Nova linha após declaração
             
             // Limpar canvas antes de carregar novo PDF
             ctx.clearRect(0, 0, canvas.width, canvas.height);
