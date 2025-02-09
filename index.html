@@ -474,6 +474,36 @@ async function renderPage(pageNum) {
   }
 }
 
+// Variável para armazenar a posição inicial do toque
+let touchStartX = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+
+canvas.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].clientX;
+  const deltaX = touchStartX - touchEndX;
+
+  if (Math.abs(deltaX) > 50) { // Define um limiar para o swipe
+    if (deltaX > 0 && currentPage < pdfDoc.numPages) {
+      renderPage(currentPage + 1);
+    } else if (deltaX < 0 && currentPage > 1) {
+      renderPage(currentPage - 1);
+    }
+  }
+}, { passive: true });
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(async () => {
+    if (pdfDoc) {
+      await renderPage(currentPage);
+    }
+  }, 200);
+});
+
     async function loadEbook() {
         try {
     
@@ -602,19 +632,29 @@ console.log('Tempo de carga:', performance.getEntriesByName('Load completo')[0].
     }
 
     // Event Listeners
-    document.getElementById('load-ebook').addEventListener('click', loadEbook);
-    document.getElementById('prev-page').addEventListener('click', () => renderPage(currentPage - 1));
-    document.getElementById('next-page').addEventListener('click', () => renderPage(currentPage + 1));
+    function adjustZoom(zoomFactor, focusPoint = { x: 0.5, y: 0.5 }) {
+  const oldScale = scale;
+  // Limita o zoom mínimo e máximo (0.5 a 3, por exemplo)
+  scale = Math.max(0.5, Math.min(scale * zoomFactor, 3));
+  
+  // Mantém a posição relativa do viewport (caso o container tenha scroll)
+  const container = canvas.parentElement;
+  const scrollLeft = container.scrollLeft + (container.clientWidth * focusPoint.x);
+  const scrollTop = container.scrollTop + (container.clientHeight * focusPoint.y);
+  
+  renderPage(currentPage).then(() => {
+    container.scrollLeft = (scrollLeft * scale / oldScale) - (container.clientWidth * focusPoint.x);
+    container.scrollTop = (scrollTop * scale / oldScale) - (container.clientHeight * focusPoint.y);
+  });
+}
     
     document.getElementById('zoom-in').addEventListener('click', () => {
-        scale *= 1.2;
-        renderPage(currentPage);
-    });
+  adjustZoom(1.2);
+});
 
-    document.getElementById('zoom-out').addEventListener('click', () => {
-        scale = Math.max(0.5, scale * 0.8);
-        renderPage(currentPage);
-    });
+document.getElementById('zoom-out').addEventListener('click', () => {
+  adjustZoom(0.8);
+});
 
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
         if (!document.fullscreenElement) {
