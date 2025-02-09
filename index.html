@@ -439,29 +439,40 @@
   }
 }
 
-    async function renderPage(pageNum) {
-        try {
-            loading.style.display = 'flex';
-            const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale });
-            
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
+    let isRendering = false;  // Declarar essa variável junto com pdfDoc, currentPage, scale, etc.
 
-            await page.render({
-                canvasContext: ctx,
-                viewport,
-                intent: 'display'
-            }).promise;
+async function renderPage(pageNum) {
+  if (isRendering) return;
+  isRendering = true;
 
-            currentPage = pageNum;
-            updatePageControls();
-        } catch (error) {
-            showError('Erro ao carregar a página. Tente recarregar o eBook.');
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
+  try {
+    loading.style.display = 'flex';
+    const page = await pdfDoc.getPage(pageNum);
+    const viewport = page.getViewport({ scale });
+
+    // Ajusta o canvas para alta resolução conforme o devicePixelRatio
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(viewport.width * devicePixelRatio);
+    canvas.height = Math.floor(viewport.height * devicePixelRatio);
+    canvas.style.width = viewport.width + 'px';
+    canvas.style.height = viewport.height + 'px';
+
+    const renderContext = {
+      canvasContext: ctx,
+      viewport,
+      transform: [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+    };
+
+    await page.render(renderContext).promise;
+    currentPage = pageNum;
+    updatePageControls();
+  } catch (error) {
+    showError('Erro ao carregar a página: ' + error.message);
+  } finally {
+    loading.style.display = 'none';
+    isRendering = false;
+  }
+}
 
     async function loadEbook() {
         try {
