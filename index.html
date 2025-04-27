@@ -3,408 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ler Ebooks</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Mentoria Individual - Impulsione Seu Instagram</title>
     <style>
-    :root {
-        --primary-color: #2c3e50;
-        --secondary-color: #34495e;
-        --text-color: #ecf0f1;
-        --container-width: min(1200px, 95%);
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f4f4f4;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    header {
-        background-color: var(--primary-color);
-        color: var(--text-color);
-        padding: 1.5rem 1rem;
-        text-align: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .video-container {
-        width: var(--container-width);
-        margin: 10px auto;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-
-    .video-banner {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 16/9;
-        display: block;
-    }
-
-    .container {
-        flex: 1;
-        width: var(--container-width);
-        margin: 20px auto;
-        padding: 15px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .ebook-list {
-        margin: 15px 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-        width: 100%;
-    }
-
-    .ebook-list select,
-    .ebook-list button {
-        padding: 12px 15px;
-        border-radius: 5px;
-        font-size: 1rem;
-        width: 100%;
-        border: 1px solid #ddd;
-    }
-
-    .ebook-list button {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .ebook-list button:hover {
-        background-color: var(--secondary-color);
-    }
-
-    .pdf-viewer {
-        width: 100%;
-        margin: 15px 0;
-        background: #f8f9fa;
-        border-radius: 5px;
-        padding: 10px;
-        overflow-x: auto;
-    }
-
-    canvas {
-        max-width: 100%;
-        height: auto;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .controls {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin: 15px 0;
-        flex-wrap: wrap;
-        align-items: center;
-        text-align: center;
-    }
-
-    .controls button {
-        padding: 12px 20px;
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        font-size: 0.9rem;
-    }
-
-    .controls button:disabled {
-        background-color: #95a5a6;
-        cursor: not-allowed;
-    }
-
-    footer {
-        background-color: var(--primary-color);
-        color: var(--text-color);
-        text-align: center;
-        padding: 1rem;
-        margin-top: auto;
-    }
-
-    .social-links {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-bottom: 15px;
-    }
-
-    .social-links a {
-        color: white;
-        font-size: 24px;
-        transition: transform 0.3s;
-        text-decoration: none;
-    }
-
-    .social-links a:hover {
-        transform: translateY(-2px);
-    }
-
-    .instagram:hover {
-        color: #E1306C;
-    }
-
-    .loading {
-        display: none;
-        text-align: center;
-        padding: 20px;
-        font-size: 1.2rem;
-    }
-
-    @media (max-width: 768px) {
-        header {
-            width: 100%;
-            border-radius: 0;
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #f8f9fa, #e0e0e0);
             margin: 0;
-            padding: 10px;
+            padding: 0;
         }
-
-        header h1 {
-            font-size: 2.5rem;
-        }
-
         .container {
-            width: 100%;
-            border-radius: 0;
-            margin: 0;
-            padding: 10px;
+            max-width: 700px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
         }
-
-        .ebook-list select,
-        .ebook-list button {
-            padding: 10px 12px;
-            font-size: 0.9rem;
+        h1 {
+            text-align: center;
+            color: #333;
         }
-
-        .controls button {
-            padding: 10px 15px;
-            font-size: 0.8rem;
+        h3 {
+            text-align: center;
+            color: #666;
         }
-
-        .social-links {
-            gap: 15px;
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
         }
-
-        .social-links a {
-            font-size: 22px;
+        ul li {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
         }
-    }
-
-    @media (max-width: 480px) {
-        .ebook-list {
-            flex-direction: column;
-            align-items: center;
+        ul li::before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+            color: green;
         }
-
-        .controls {
-            gap: 5px;
+        .price {
+            font-size: 28px;
+            color: #e91e63;
+            text-align: center;
+            margin: 20px 0;
         }
-
-        #page-info {
-            font-size: 0.9rem;
+        .cta-button {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #25D366;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 8px;
+            transition: background 0.3s;
         }
-
-        .ebook-list select,
-        .ebook-list button {
-            max-width: none;
+        .cta-button:hover {
+            background-color: #1ebe57;
         }
-     
-        .main-banner {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-    padding: 4rem 1rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.banner-content {
-    max-width: min(1200px, 95%);
-    margin: 0 auto;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-}
-
-.site-title {
-    font-size: 3.5rem;
-    color: #ecf0f1;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    margin-bottom: 0.5rem;
-}
-
-.site-subtitle {
-    font-size: 1.5rem;
-    color: #bdc3c7;
-    font-weight: 300;
-}
-
-.book-icon {
-    margin-left: 15px;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-}
-
-/* Ajuste a media query existente para incluir: */
-@media (max-width: 768px) {
-    .site-title {
-        font-size: 2.5rem;
-    }
-    
-    .site-subtitle {
-        font-size: 1.2rem;
-    }
-}
-</style>
+        .note {
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
 
-<header class="main-banner">
-    <div class="banner-content">
-        <h1 class="site-title">Washington Verdan<span class="book-icon">📚</span></h1>
-        <p class="site-subtitle">Meus Livros </p>
-    </div>
-</header>
-
-  <div class="video-container">
-    <a href="https://www.amazon.com.br/stores/Washington-Verdan/author/B09PVND4HD" target="_blank">
-      <video class="video-banner" autoplay muted loop playsinline>
-        <source src="anuncio.mp4" type="video/mp4">
-        Seu navegador não suporta vídeos HTML5.
-      </video>
-    </a>
-  </div>
-
 <div class="container">
-    <div class="ebook-list">
-       <select id="ebook-select">
-    <option value="hermetismo3.pdf">Hermetismo</option>
-    <option value="abuscapelosucesso.pdf">A Busca Pelo Sucesso</option>
-    <option value="viverderenda.pdf">Viver de Renda</option>
-    <option value="opesodaverdade.pdf">O Peso da Verdade</option>
-    <option value="omaiorinvestimento.pdf">O Maior Investimento</option>
-    <option value="realidadeabstrata.pdf">Realidade Abstrata</option>
-</select>
-        <button id="load-ebook">Ler Agora</button>
-    </div>
-
-    <div class="loading" id="loading">
-        Carregando...
-    </div>
-
-    <div class="pdf-viewer">
-        <canvas id="pdf-canvas"></canvas>
-    </div>
-
-    <div class="controls">
-        <button id="prev-page" disabled>Anterior</button>
-        <span id="page-info">Página 1 de 1</span>
-        <button id="next-page" disabled>Próxima</button>
-    </div>
-
+    <h1>Impulsione Seu Instagram!</h1>
+    <h3>Mentoria Individual Exclusiva via WhatsApp</h3>
     
+    <p style="margin-top: 20px;">Você quer <strong>crescer de verdade no Instagram</strong>? Quer <strong>aumentar seus seguidores, seu engajamento</strong> e transformar seu perfil em uma máquina de oportunidades?</p>
+
+    <p><strong>Nessa mentoria individual, você vai aprender:</strong></p>
+
+    <ul>
+        <li>Como otimizar seu perfil para atrair mais seguidores</li>
+        <li>Quais tipos de conteúdos funcionam em 2025</li>
+        <li>Como usar hashtags de forma estratégica</li>
+        <li>Táticas de engajamento para aumentar sua visibilidade</li>
+        <li>Segredos para fazer o algoritmo trabalhar a seu favor</li>
+        <li>Dicas práticas e personalizadas para o seu perfil!</li>
+    </ul>
+
+    <div class="price">
+        Apenas R$50 (pagamento único)
+    </div>
+
+    <p style="text-align: center;"><strong>Vagas limitadas para atendimento exclusivo!</strong></p>
+
+    <p style="margin-top: 30px;">Como funciona:</p>
+    <ul>
+        <li>Clique no botão abaixo para falar comigo no WhatsApp</li>
+        <li>Confirmamos o pagamento</li>
+        <li>Agendamos sua sessão individual</li>
+        <li>Você já começa a ver resultados!</li>
+    </ul>
+
+    <a href="https://wa.me/SEUNUMERO" class="cta-button" target="_blank">Falar comigo no WhatsApp</a>
+
+    <div class="note">
+        Não perca tempo. Seu crescimento começa agora!
+    </div>
 </div>
 
-<footer>
-    <div class="social-links">
-        <a href="https://www.instagram.com/washingtonverdan/" target="_blank" class="instagram">
-            <i class="fab fa-instagram"></i>
-        </a>       
-    </div>
-
-    <p>&copy; 2025 Washington Verdan. Todos os direitos reservados.</p>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
-
-    
-<script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js';
-
-    let pdfDoc = null;
-    let currentPage = 1;
-    let scale = 1.5;
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
-    const loading = document.getElementById('loading');
-    const prevButton = document.getElementById('prev-page');
-    const nextButton = document.getElementById('next-page');
-    const pageInfo = document.getElementById('page-info');
-
-    function updatePageControls() {
-        prevButton.disabled = currentPage <= 1;
-        nextButton.disabled = currentPage >= pdfDoc.numPages;
-        pageInfo.textContent = `Página ${currentPage} de ${pdfDoc.numPages}`;
-    }
-
-    async function renderPage(pageNum) {
-        try {
-            loading.style.display = 'block';
-            const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale: scale });
-
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ 
-                canvasContext: ctx, 
-                viewport: viewport 
-            }).promise;
-
-            currentPage = pageNum;
-            updatePageControls();
-        } catch (error) {
-            console.error('Erro ao renderizar página:', error);
-        } finally {
-            loading.style.display = 'none';
-        }
-    }
-
-    document.getElementById('load-ebook').addEventListener('click', async () => {
-        try {
-            const ebook = document.getElementById('ebook-select').value;
-            loading.style.display = 'block';
-            pdfDoc = await pdfjsLib.getDocument(ebook).promise;
-            await renderPage(1);
-        } catch (error) {
-            console.error('Erro ao carregar eBook:', error);
-            alert('Erro ao carregar eBook. Verifique o console para detalhes.');
-        } finally {
-            loading.style.display = 'none';
-        }
-    });
-
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) renderPage(currentPage - 1);
-    });
-
-    nextButton.addEventListener('click', () => {
-        if (currentPage < pdfDoc.numPages) renderPage(currentPage + 1);
-    });
-
-    
-
-</script>
 </body>
 </html>
